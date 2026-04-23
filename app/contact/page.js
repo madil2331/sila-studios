@@ -35,7 +35,7 @@ export default function ContactPage() {
             <div>
               <p className="contact-info-label">WhatsApp (Fastest)</p>
               <a href={waLink} target="_blank" rel="noopener noreferrer" className="contact-info-value" style={{ color: '#25D366' }}>
-                +92 3XX XXX XXXX
+                +92 316 397 3017
               </a>
             </div>
           </div>
