@@ -93,7 +93,7 @@ export default function Footer() {
         </p>
         <p className="footer-copy" style={{ direction: 'rtl' }}>
           <span style={{ fontFamily: 'Cormorant Garamond, serif', fontStyle: 'italic', fontSize: 14, color: 'var(--gold)' }}>سِلا</span>
-          &nbsp;— حیثیت سے پوشاک
+          &nbsp;— جہاں وقار ملتا ہے
         </p>
       </div>
     </footer>
