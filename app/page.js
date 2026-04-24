@@ -1,15 +1,30 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { createClient } from '@supabase/supabase-js'
 
-// TODO: Replace with your actual WhatsApp number
-const WHATSAPP_NUMBER = '+92-316-3973017'
+const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923XXXXXXXXXX'
+
+async function getFeaturedProducts() {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      { auth: { persistSession: false } }
+    )
+    const { data } = await supabase
+      .from('products')
+      .select('*')
+      .eq('in_stock', true)
+      .order('created_at', { ascending: false })
+      .limit(3)
+    return data || []
+  } catch {
+    return []
+  }
+}
 const WHATSAPP_MSG = encodeURIComponent("Hi Sila Studios! I'd like to place an order. 🌸")
 
-const products = [
-  { id: 1, name: 'Embroidered Lawn Set', price: 'Rs. 3,500', tag: 'New', category: 'Formal' },
-  { id: 2, name: 'Chiffon Evening Suit', price: 'Rs. 4,800', tag: 'Bestseller', category: 'Formal' },
-  { id: 3, name: 'Cotton Casual Kurta', price: 'Rs. 2,200', tag: 'New', category: 'Casual' },
-]
+
 
 function NeedleIcon() {
   return (
@@ -46,7 +61,8 @@ function ProductCard({ product }) {
   )
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const products = await getFeaturedProducts()
   const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`
   return (
     <>
