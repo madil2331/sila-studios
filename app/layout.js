@@ -3,6 +3,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import WhatsAppButton from '@/components/WhatsAppButton'
 import AnnouncementBar from '@/components/AnnouncementBar'
+import PublicLayout from '@/components/PublicLayout'
 
 export const metadata = {
   title: 'Sila Studios — Where Elegance Fits',
@@ -42,11 +43,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        <AnnouncementBar />
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
-        <WhatsAppButton />
+        <PublicLayout>{children}</PublicLayout>
       </body>
     </html>
   )
