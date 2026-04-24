@@ -1,4 +1,5 @@
 import '../../app/globals.css'
+import PublicLayout from '@/components/PublicLayout'
 import './admin.css'
 
 export const metadata = {
@@ -17,8 +18,8 @@ export default function AdminLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body className="admin-body">
-        {children}
+     <body>
+        <PublicLayout>{children}</PublicLayout>
       </body>
     </html>
   )
