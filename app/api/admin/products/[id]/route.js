@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { getSessionFromCookies } from '@/lib/auth'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
-function requireAuth() {
+async function requireAuth() {
   const session = getSessionFromCookies()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   return null

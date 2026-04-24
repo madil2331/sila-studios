@@ -38,7 +38,7 @@ export async function POST(request) {
 
     // Success — clear rate limit, issue JWT session cookie
     clearRateLimit(ip)
-    const token = createSession()
+    const token = await createSession()
 
     const response = NextResponse.json({ success: true })
     response.cookies.set(SESSION_COOKIE, token, {

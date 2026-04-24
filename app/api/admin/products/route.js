@@ -2,14 +2,14 @@ import { NextResponse } from 'next/server'
 import { getSessionFromCookies } from '@/lib/auth'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
-function requireAuth() {
-  const session = getSessionFromCookies()
+async function requireAuth() {
+  const session = await getSessionFromCookies()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   return null
 }
 
 export async function GET() {
-  const authError = requireAuth()
+  const authError = await requireAuth()
   if (authError) return authError
 
   const db = getSupabaseAdmin()
@@ -23,7 +23,7 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  const authError = requireAuth()
+  const authError = await requireAuth()
   if (authError) return authError
 
   const body = await request.json()
