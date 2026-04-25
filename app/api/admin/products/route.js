@@ -27,7 +27,7 @@ export async function POST(request) {
   if (authError) return authError
 
   const body = await request.json()
-  const { name, price, category, description, badge, in_stock } = body
+  const { name, price, category, description, badge, in_stock, image_url } = body
 
   if (!name || !price) {
     return NextResponse.json({ error: 'Name and price are required' }, { status: 400 })
@@ -36,7 +36,15 @@ export async function POST(request) {
   const db = getSupabaseAdmin()
   const { data, error } = await db
     .from('products')
-    .insert([{ name, price: parseInt(price), category, description, badge, in_stock: in_stock ?? true }])
+    .insert([{ 
+      name, 
+      price: parseInt(price), 
+      category, 
+      description, 
+      badge, 
+      in_stock: in_stock ?? true,
+      image_url: image_url || null
+    }])
     .select()
     .single()
 
