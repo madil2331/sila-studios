@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from 'react'
 import AdminSidebar from '@/components/AdminSidebar'
-import Image from 'next/image'
 
 const CATEGORIES = ['Formal', 'Casual', 'Bridal', 'Pret', 'Summer', 'Winter', 'Other']
 const BADGES = ['', 'New', 'Bestseller', 'Premium', 'Sale']
