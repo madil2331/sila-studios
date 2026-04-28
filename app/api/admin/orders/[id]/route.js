@@ -3,13 +3,13 @@ import { getSessionFromCookies } from '@/lib/auth'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
 async function requireAuth() {
-  const session = getSessionFromCookies()
+  const session = await getSessionFromCookies()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   return null
 }
 
 export async function PUT(request, { params }) {
-  const authError = requireAuth()
+  const authError = await requireAuth()
   if (authError) return authError
 
   const body = await request.json()
@@ -28,7 +28,7 @@ export async function PUT(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
-  const authError = requireAuth()
+  const authError = await requireAuth()
   if (authError) return authError
 
   const db = getSupabaseAdmin()

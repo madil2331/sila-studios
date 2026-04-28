@@ -3,22 +3,30 @@ import { getSessionFromCookies } from '@/lib/auth'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
 async function requireAuth() {
-  const session = getSessionFromCookies()
+  const session = await getSessionFromCookies()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   return null
 }
 
 export async function PUT(request, { params }) {
-  const authError = requireAuth()
+  const authError = await requireAuth()
   if (authError) return authError
 
   const body = await request.json()
-  const { name, price, category, description, badge, in_stock } = body
+  const { name, price, category, description, badge, in_stock, image_url } = body
+
+  const payload = {
+    name,
+    price: parseInt(price),
+    category,
+    description,
+    badge,
+    in_stock,
+  }
+  if (image_url !== undefined) payload.image_url = image_url || null
 
   const db = getSupabaseAdmin()
-  const { data, error } = await db
-    .from('products')
-    .update({ name, price: parseInt(price), category, description, badge, in_stock })
+  const { data, error } = await db.from('products').update(payload)
     .eq('id', params.id)
     .select()
     .single()
@@ -28,7 +36,7 @@ export async function PUT(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
-  const authError = requireAuth()
+  const authError = await requireAuth()
   if (authError) return authError
 
   const db = getSupabaseAdmin()
