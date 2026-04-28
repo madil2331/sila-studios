@@ -2,7 +2,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
 
+/** Featured strip must reflect latest Supabase rows after admin changes. */
+export const dynamic = 'force-dynamic'
+
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923XXXXXXXXXX'
+
+const PRICE_LOCALE = 'en-US'
 
 async function getFeaturedProducts() {
   try {
@@ -35,27 +40,40 @@ function NeedleIcon() {
 }
 
 function ProductCard({ product }) {
-  const waMsg = encodeURIComponent(`Hi Sila Studios! I'm interested in the "${product.name}" (${product.price}). Is it available? 🌸`)
+  const priceLabel = `Rs. ${Number(product.price).toLocaleString(PRICE_LOCALE)}`
+  const waMsg = encodeURIComponent(`Hi Sila Studios! I'm interested in the "${product.name}" (${priceLabel}). Is it available? 🌸`)
   const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${waMsg}`
   return (
     <div className="product-card">
       <div className="product-image-wrap">
-        <div className="product-placeholder">
-          <div className="product-placeholder-icon">
-            <svg viewBox="0 0 24 24" fill="none" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/>
-            </svg>
+        {product.image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={product.image_url} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          <div className="product-placeholder">
+            <div className="product-placeholder-icon">
+              <svg viewBox="0 0 24 24" fill="none" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/>
+              </svg>
+            </div>
+            <span className="product-placeholder-text">Photo coming soon</span>
           </div>
-          <span className="product-placeholder-text">Photo coming soon</span>
-        </div>
-        <span className={`product-badge ${product.tag === 'New' ? 'new' : ''}`}>{product.tag}</span>
+        )}
+        {product.badge ? (
+          <span className={`product-badge ${product.badge === 'New' ? 'new' : ''}`}>{product.badge}</span>
+        ) : null}
         <a className="product-order-btn" href={waLink} target="_blank" rel="noopener noreferrer">
           Order via WhatsApp →
         </a>
       </div>
       <div className="product-info">
         <p className="product-name">{product.name}</p>
-        <p className="product-price"><span className="current">{product.price}</span></p>
+        <p className="product-price">
+          <span className="current">{priceLabel}</span>
+          {product.category ? (
+            <span style={{ fontSize: 11, color: 'var(--muted)', letterSpacing: '0.06em' }}> · {product.category}</span>
+          ) : null}
+        </p>
       </div>
     </div>
   )

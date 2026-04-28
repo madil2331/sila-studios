@@ -2,8 +2,9 @@
 
 import { useEffect, useState, useRef } from 'react'
 import AdminSidebar from '@/components/AdminSidebar'
+import { PRODUCT_CATEGORIES } from '@/lib/product-categories'
 
-const CATEGORIES = ['Formal', 'Casual', 'Bridal', 'Pret', 'Summer', 'Winter', 'Other']
+const CATEGORIES = PRODUCT_CATEGORIES
 const BADGES = ['', 'New', 'Bestseller', 'Premium', 'Sale']
 const EMPTY_FORM = { name: '', price: '', category: '', description: '', badge: '', in_stock: true, image_url: '' }
 
@@ -17,6 +18,10 @@ function ImageUploader({ value, onChange }) {
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState(value || '')
   const [dragOver, setDragOver] = useState(false)
+
+  useEffect(() => {
+    setPreview(value || '')
+  }, [value])
 
   async function handleFile(file) {
     if (!file) return

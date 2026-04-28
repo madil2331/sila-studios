@@ -1,11 +1,15 @@
 'use client'
 
 import { useState } from 'react'
+import { PRODUCT_CATEGORIES } from '@/lib/product-categories'
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923XXXXXXXXXX'
+/** Fixed locale avoids server/client hydration mismatches from default toLocaleString(). */
+const PRICE_LOCALE = 'en-US'
 
 function ProductCard({ product }) {
-  const waMsg = encodeURIComponent(`Hi Sila Studios! I'm interested in the "${product.name}" (Rs. ${product.price?.toLocaleString()}). Is it available? 🌸`)
+  const priceLabel = `Rs. ${Number(product.price).toLocaleString(PRICE_LOCALE)}`
+  const waMsg = encodeURIComponent(`Hi Sila Studios! I'm interested in the "${product.name}" (${priceLabel}). Is it available? 🌸`)
   const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${waMsg}`
 
   return (
@@ -33,7 +37,7 @@ function ProductCard({ product }) {
       <div className="product-info">
         <p className="product-name">{product.name}</p>
         <p className="product-price">
-          <span className="current">Rs. {product.price?.toLocaleString()}</span>
+          <span className="current">{priceLabel}</span>
           {product.category && (
             <span style={{ fontSize: 11, color: 'var(--muted)', letterSpacing: '0.06em' }}> · {product.category}</span>
           )}
@@ -46,7 +50,7 @@ function ProductCard({ product }) {
 export default function CollectionsClient({ products }) {
   const [filter, setFilter] = useState('All')
 
-  const categories = ['All', ...Array.from(new Set(products.map(p => p.category).filter(Boolean)))]
+  const filters = ['All', ...PRODUCT_CATEGORIES]
   const filtered = filter === 'All' ? products : products.filter(p => p.category === filter)
 
   return (
@@ -60,10 +64,10 @@ export default function CollectionsClient({ products }) {
         </p>
       </div>
 
-      {/* Filter bar - only show if we have categories */}
-      {categories.length > 1 && (
+      {/* Filter bar — same labels as admin; empty categories show “No products” message */}
+      {products.length > 0 && (
         <div className="filter-bar">
-          {categories.map(cat => (
+          {filters.map(cat => (
             <button
               key={cat}
               className={`filter-btn ${filter === cat ? 'active' : ''}`}

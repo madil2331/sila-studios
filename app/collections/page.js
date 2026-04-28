@@ -1,6 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 import CollectionsClient from './CollectionsClient'
 
+/** Always fetch fresh catalog from Supabase (admin edits must show without redeploy). */
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: 'Collections — Sila Studios',
   description: 'Browse our curated ladies fashion collections. Formal wear, casual kurtas, embroidered suits. Order via WhatsApp with COD delivery across Pakistan.',
