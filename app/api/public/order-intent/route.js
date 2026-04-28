@@ -20,23 +20,42 @@ export async function POST(request) {
     if (pErr || !product) return NextResponse.json({ error: 'Product not found' }, { status: 404 })
 
     // Create a lightweight order record (intent). Customer details can be filled in by admin later.
-    const { data: order, error: oErr } = await db
-      .from('orders')
-      .insert([{
+    // Your Supabase schema may not have all columns (e.g. cod_amount) yet, so we retry with a minimal payload.
+    const insertFull = {
+      customer_name: null,
+      customer_phone: null,
+      customer_city: null,
+      product_name: product.name,
+      status: 'Pending',
+      notes: 'Web order intent (WhatsApp click)',
+      cod_amount: product.price ?? null,
+      courier_name: null,
+      tracking_number: null,
+      shipment_status: null,
+    }
+
+    let order = null
+    let oErr = null
+
+    ;({ data: order, error: oErr } = await db.from('orders').insert([insertFull]).select('id').single())
+
+    if (oErr) {
+      const msg = String(oErr.message || '')
+      const looksLikeMissingColumn = msg.includes('schema cache') || msg.includes('Could not find the') || msg.includes('column')
+      if (!looksLikeMissingColumn) return NextResponse.json({ error: oErr.message }, { status: 500 })
+
+      const minimal = {
         customer_name: null,
         customer_phone: null,
         customer_city: null,
         product_name: product.name,
         status: 'Pending',
         notes: 'Web order intent (WhatsApp click)',
-        cod_amount: product.price ?? null,
-        courier_name: null,
-        tracking_number: null,
-        shipment_status: null,
-      }])
-      .select('id')
-      .single()
-    if (oErr) return NextResponse.json({ error: oErr.message }, { status: 500 })
+      }
+      const retry = await db.from('orders').insert([minimal]).select('id').single()
+      if (retry.error) return NextResponse.json({ error: retry.error.message }, { status: 500 })
+      order = retry.data
+    }
 
     const priceLabel = `Rs. ${Number(product.price || 0).toLocaleString('en-US')}`
     const msg = `Hi Sila Studios! I want to order: "${product.name}" (${priceLabel}).\n\nOrder ID: ${order.id}\nCity: \nSize: \nAddress: `

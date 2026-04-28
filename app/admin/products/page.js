@@ -7,7 +7,20 @@ import { adminFetch } from '@/lib/admin-fetch'
 
 const CATEGORIES = PRODUCT_CATEGORIES
 const BADGES = ['', 'New', 'Bestseller', 'Premium', 'Sale']
-const EMPTY_FORM = { name: '', price: '', category: '', description: '', badge: '', in_stock: true, image_url: '' }
+const EMPTY_FORM = {
+  name: '',
+  price: '',
+  category: '',
+  description: '',
+  badge: '',
+  in_stock: true,
+  image_url: '',
+  media_urls: [],
+  available_sizes: '',
+  available_colors: '',
+  compare_at_price: '',
+  discount_price: '',
+}
 
 function Toast({ msg, type, onDone }) {
   useEffect(() => { const t = setTimeout(onDone, 3000); return () => clearTimeout(t) }, [])
@@ -164,6 +177,11 @@ export default function ProductsPage() {
       badge: p.badge || '',
       in_stock: p.in_stock ?? true,
       image_url: p.image_url || '',
+      media_urls: Array.isArray(p.media_urls) ? p.media_urls : [],
+      available_sizes: p.available_sizes || '',
+      available_colors: p.available_colors || '',
+      compare_at_price: p.compare_at_price != null ? String(p.compare_at_price) : '',
+      discount_price: p.discount_price != null ? String(p.discount_price) : '',
     })
     setEditId(p.id)
     setModal('edit')
@@ -178,7 +196,12 @@ export default function ProductsPage() {
       const res = await adminFetch(url, {
         method: modal === 'edit' ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          // Normalize numeric fields
+          compare_at_price: form.compare_at_price === '' ? null : Number(form.compare_at_price),
+          discount_price: form.discount_price === '' ? null : Number(form.discount_price),
+        }),
       })
       if (res.ok) {
         setToast({ msg: modal === 'edit' ? 'Product updated.' : 'Product added.', type: 'success' })
@@ -323,6 +346,16 @@ export default function ProductsPage() {
                 </div>
                 <div className="admin-form-row">
                   <div className="admin-form-group">
+                    <label className="admin-form-label">Compare at (optional)</label>
+                    <input className="admin-form-input" type="number" value={form.compare_at_price} onChange={e => setForm({ ...form, compare_at_price: e.target.value })} placeholder="6000" />
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Discount price (optional)</label>
+                    <input className="admin-form-input" type="number" value={form.discount_price} onChange={e => setForm({ ...form, discount_price: e.target.value })} placeholder="4999" />
+                  </div>
+                </div>
+                <div className="admin-form-row">
+                  <div className="admin-form-group">
                     <label className="admin-form-label">Badge</label>
                     <select className="admin-form-select" value={form.badge} onChange={e => setForm({ ...form, badge: e.target.value })}>
                       {BADGES.map(b => <option key={b} value={b}>{b || 'No badge'}</option>)}
@@ -336,12 +369,35 @@ export default function ProductsPage() {
                     </label>
                   </div>
                 </div>
+                <div className="admin-form-row">
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Available sizes (comma-separated)</label>
+                    <input className="admin-form-input" value={form.available_sizes} onChange={e => setForm({ ...form, available_sizes: e.target.value })} placeholder="XS, S, M, L" />
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Available colors (comma-separated)</label>
+                    <input className="admin-form-input" value={form.available_colors} onChange={e => setForm({ ...form, available_colors: e.target.value })} placeholder="Black, Ivory, Rose" />
+                  </div>
+                </div>
               </div>
             </div>
 
             <div className="admin-form-group" style={{ marginTop: 16 }}>
               <label className="admin-form-label">Description</label>
               <textarea className="admin-form-textarea" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Brief description of the piece..." />
+            </div>
+
+            <div className="admin-form-group" style={{ marginTop: 16 }}>
+              <label className="admin-form-label">Gallery media URLs (one per line)</label>
+              <textarea
+                className="admin-form-textarea"
+                value={(form.media_urls || []).join('\n')}
+                onChange={e => setForm({ ...form, media_urls: e.target.value.split('\n').map(s => s.trim()).filter(Boolean) })}
+                placeholder="Paste additional image/video URLs (Supabase Storage public URLs)."
+              />
+              <p style={{ margin: '10px 0 0', color: '#3A3830', fontSize: 12, lineHeight: 1.6 }}>
+                Upload UI for multiple files requires extra Supabase columns + an upload endpoint; for now you can paste URLs.
+              </p>
             </div>
 
             <div className="admin-modal-actions">

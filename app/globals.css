@@ -589,6 +589,7 @@ ul, ol { list-style: none; }
   cursor: pointer;
   transition: transform 0.3s var(--ease);
 }
+.product-card a { -webkit-tap-highlight-color: transparent; }
 .product-card:hover { transform: translateY(-4px); }
 .product-image-wrap {
   position: relative;

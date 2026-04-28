@@ -24,14 +24,27 @@ export async function PUT(request, { params }) {
   if (!id) return NextResponse.json({ error: 'Missing product id' }, { status: 400 })
 
   const body = await request.json()
-  const { name, price, category, description, badge, in_stock, image_url } = body
+  const {
+    name,
+    price,
+    category,
+    description,
+    badge,
+    in_stock,
+    image_url,
+    media_urls,
+    available_sizes,
+    available_colors,
+    compare_at_price,
+    discount_price,
+  } = body
 
   const parsedPrice = parsePrice(price)
   if (!Number.isFinite(parsedPrice)) {
     return NextResponse.json({ error: 'Invalid price' }, { status: 400 })
   }
 
-  const payload = {
+  const basePayload = {
     name,
     price: parsedPrice,
     category,
@@ -39,16 +52,25 @@ export async function PUT(request, { params }) {
     badge,
     in_stock,
   }
-  if (image_url !== undefined) payload.image_url = image_url || null
+  if (image_url !== undefined) basePayload.image_url = image_url || null
+
+  const richPayload = {
+    ...basePayload,
+    media_urls: Array.isArray(media_urls) ? media_urls : media_urls === null ? null : undefined,
+    available_sizes: available_sizes === undefined ? undefined : (available_sizes || null),
+    available_colors: available_colors === undefined ? undefined : (available_colors || null),
+    compare_at_price: compare_at_price === undefined ? undefined : (compare_at_price ?? null),
+    discount_price: discount_price === undefined ? undefined : (discount_price ?? null),
+  }
 
   const db = getSupabaseAdmin()
-  const { data, error } = await db.from('products').update(payload)
-    .eq('id', id)
-    .select()
-    .single()
+  let update = await db.from('products').update(richPayload).eq('id', id).select().single()
+  if (update.error) {
+    update = await db.from('products').update(basePayload).eq('id', id).select().single()
+  }
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data, { headers: NO_STORE })
+  if (update.error) return NextResponse.json({ error: update.error.message }, { status: 500 })
+  return NextResponse.json(update.data, { headers: NO_STORE })
 }
 
 export async function DELETE(request, { params }) {
