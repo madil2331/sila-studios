@@ -9,6 +9,7 @@ const STATUSES = ['Pending', 'Confirmed', 'Dispatched', 'Delivered', 'Cancelled'
 const EMPTY_FORM = {
   customer_name: '', customer_phone: '', customer_city: '',
   product_name: '', status: 'Pending', notes: '',
+  cod_amount: '', courier_name: '', tracking_number: '', shipment_status: '',
 }
 
 function Toast({ msg, type, onDone }) {
@@ -54,6 +55,10 @@ export default function OrdersPage() {
       product_name: order.product_name || '',
       status: order.status || 'Pending',
       notes: order.notes || '',
+      cod_amount: order.cod_amount != null ? String(order.cod_amount) : '',
+      courier_name: order.courier_name || '',
+      tracking_number: order.tracking_number || '',
+      shipment_status: order.shipment_status || '',
     })
     setEditId(order.id)
     setModal('edit')
@@ -170,7 +175,10 @@ export default function OrdersPage() {
                     <th>Phone</th>
                     <th>City</th>
                     <th>Product</th>
+                    <th>Amount</th>
                     <th>Status</th>
+                    <th>Courier</th>
+                    <th>Tracking</th>
                     <th>Date</th>
                     <th>Actions</th>
                   </tr>
@@ -193,6 +201,9 @@ export default function OrdersPage() {
                       </td>
                       <td>{order.customer_city || '—'}</td>
                       <td>{order.product_name || '—'}</td>
+                      <td className="price-cell">
+                        {order.cod_amount != null ? `Rs. ${Number(order.cod_amount).toLocaleString()}` : '—'}
+                      </td>
                       <td>
                         <select
                           value={order.status}
@@ -213,6 +224,12 @@ export default function OrdersPage() {
                         >
                           {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
+                      </td>
+                      <td>{order.courier_name || '—'}</td>
+                      <td>
+                        {order.tracking_number
+                          ? <span style={{ fontSize: 12, color: '#C8C4BC' }}>{order.tracking_number}</span>
+                          : '—'}
                       </td>
                       <td>{new Date(order.created_at).toLocaleDateString('en-PK')}</td>
                       <td>
@@ -293,6 +310,49 @@ export default function OrdersPage() {
                 onChange={e => setForm({ ...form, product_name: e.target.value })}
                 placeholder="Embroidered Lawn Set"
               />
+            </div>
+
+            <div className="admin-form-row">
+              <div className="admin-form-group">
+                <label className="admin-form-label">COD Amount (Rs.)</label>
+                <input
+                  className="admin-form-input"
+                  type="number"
+                  value={form.cod_amount}
+                  onChange={e => setForm({ ...form, cod_amount: e.target.value })}
+                  placeholder="5500"
+                />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Courier</label>
+                <input
+                  className="admin-form-input"
+                  value={form.courier_name}
+                  onChange={e => setForm({ ...form, courier_name: e.target.value })}
+                  placeholder="PostEx / Leopard"
+                />
+              </div>
+            </div>
+
+            <div className="admin-form-row">
+              <div className="admin-form-group">
+                <label className="admin-form-label">Tracking Number</label>
+                <input
+                  className="admin-form-input"
+                  value={form.tracking_number}
+                  onChange={e => setForm({ ...form, tracking_number: e.target.value })}
+                  placeholder="TRK-123456"
+                />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Shipment Status</label>
+                <input
+                  className="admin-form-input"
+                  value={form.shipment_status}
+                  onChange={e => setForm({ ...form, shipment_status: e.target.value })}
+                  placeholder="Booked / In Transit / Delivered"
+                />
+              </div>
             </div>
 
             <div className="admin-form-group">

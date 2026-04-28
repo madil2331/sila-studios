@@ -4,9 +4,16 @@
    ============================================================ */
 
 .admin-body {
+  --admin-bg: #181a1b;
+  --admin-bg-elev-1: #1d2124;
+  --admin-bg-elev-2: #222629;
+  --admin-border: rgba(255,255,255,0.10);
+  --admin-border-soft: rgba(255,255,255,0.07);
+  --admin-text: #e7e9ec;
+  --admin-text-muted: #a7adb4;
   font-family: 'Jost', system-ui, sans-serif;
-  background: #0F0F0D;
-  color: #E8E4DC;
+  background: var(--admin-bg);
+  color: var(--admin-text);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
@@ -17,13 +24,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #0F0F0D;
+  background: var(--admin-bg);
   padding: 24px;
 }
 .admin-login-card {
   width: 100%;
   max-width: 380px;
-  background: #1A1A17;
+  background: var(--admin-bg-elev-2);
   border: 1px solid rgba(196,164,98,0.15);
   border-radius: 8px;
   padding: 40px;
@@ -41,7 +48,7 @@
   font-size: 10px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #5A5852;
+  color: var(--admin-text-muted);
   text-align: center;
   margin-bottom: 32px;
 }
@@ -50,19 +57,19 @@
   font-size: 10px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #8A8580;
+  color: var(--admin-text-muted);
   margin-bottom: 8px;
 }
 .admin-login-input {
   width: 100%;
   padding: 11px 14px;
-  background: #0F0F0D;
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border-soft);
   border-radius: 4px;
   font-family: 'Jost', sans-serif;
   font-size: 14px;
   font-weight: 300;
-  color: #E8E4DC;
+  color: var(--admin-text);
   outline: none;
   transition: border-color 0.2s;
   margin-bottom: 20px;
@@ -104,8 +111,8 @@
 
 /* ---- Sidebar ---- */
 .admin-sidebar {
-  background: #141412;
-  border-right: 1px solid rgba(255,255,255,0.05);
+  background: var(--admin-bg-elev-1);
+  border-right: 1px solid var(--admin-border-soft);
   display: flex;
   flex-direction: column;
   position: sticky;
@@ -115,7 +122,7 @@
 }
 .admin-sidebar-brand {
   padding: 24px 20px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid var(--admin-border-soft);
   margin-bottom: 8px;
 }
 .admin-sidebar-logo {
@@ -141,7 +148,7 @@
   font-size: 12px;
   font-weight: 400;
   letter-spacing: 0.06em;
-  color: #6A6660;
+  color: var(--admin-text-muted);
   text-decoration: none;
   transition: color 0.15s, background 0.15s;
   border-radius: 0;
@@ -154,13 +161,13 @@
   font-size: 9px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #5A5650;
+  color: var(--admin-text-muted);
   padding: 16px 20px 6px;
 }
 .admin-sidebar-footer {
   margin-top: auto;
   padding: 16px 20px;
-  border-top: 1px solid rgba(255,255,255,0.05);
+  border-top: 1px solid var(--admin-border-soft);
 }
 .admin-logout-btn {
   display: flex;
@@ -181,7 +188,7 @@
 
 /* ---- Main Content ---- */
 .admin-main {
-  background: #0F0F0D;
+  background: var(--admin-bg);
   overflow-x: hidden;
 }
 .admin-topbar {
@@ -189,16 +196,16 @@
   align-items: center;
   justify-content: space-between;
   padding: 20px 32px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  border-bottom: 1px solid var(--admin-border-soft);
   position: sticky;
   top: 0;
-  background: #0F0F0D;
+  background: var(--admin-bg);
   z-index: 10;
 }
 .admin-page-title {
   font-size: 16px;
   font-weight: 400;
-  color: #E8E4DC;
+  color: var(--admin-text);
   letter-spacing: 0.02em;
 }
 .admin-content {
@@ -213,8 +220,8 @@
   margin-bottom: 32px;
 }
 .admin-stat {
-  background: #1A1A17;
-  border: 1px solid rgba(255,255,255,0.05);
+  background: var(--admin-bg-elev-2);
+  border: 1px solid var(--admin-border-soft);
   border-radius: 6px;
   padding: 20px;
 }
@@ -250,7 +257,7 @@
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.04em;
-  color: #C8C4BC;
+  color: var(--admin-text);
 }
 
 /* ---- Buttons ---- */
@@ -280,8 +287,8 @@
 
 /* ---- Table ---- */
 .admin-table-wrap {
-  background: #1A1A17;
-  border: 1px solid rgba(255,255,255,0.05);
+  background: var(--admin-bg-elev-2);
+  border: 1px solid var(--admin-border-soft);
   border-radius: 6px;
   overflow: hidden;
 }
@@ -297,19 +304,19 @@
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #3A3830;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  background: #141412;
+  color: var(--admin-text-muted);
+  border-bottom: 1px solid var(--admin-border-soft);
+  background: var(--admin-bg-elev-1);
 }
 .admin-table td {
   padding: 14px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
-  color: #9A9690;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--admin-text-muted);
   vertical-align: middle;
 }
 .admin-table tr:last-child td { border-bottom: none; }
 .admin-table tr:hover td { background: rgba(255,255,255,0.015); }
-.admin-table .name-cell { color: #C8C4BC; font-weight: 400; }
+.admin-table .name-cell { color: var(--admin-text); font-weight: 400; }
 .admin-table .price-cell { color: #C4A462; font-weight: 400; font-variant-numeric: tabular-nums; }
 
 /* ---- Status Badge ---- */
@@ -346,7 +353,7 @@
   padding: 24px;
 }
 .admin-modal {
-  background: #1A1A17;
+  background: var(--admin-bg-elev-2);
   border: 1px solid rgba(196,164,98,0.15);
   border-radius: 8px;
   padding: 32px;
@@ -358,10 +365,10 @@
 .admin-modal-title {
   font-size: 15px;
   font-weight: 400;
-  color: #E8E4DC;
+  color: var(--admin-text);
   margin-bottom: 24px;
   padding-bottom: 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid var(--admin-border-soft);
 }
 .admin-form-group { margin-bottom: 18px; }
 .admin-form-label {
@@ -369,7 +376,7 @@
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #6A6660;
+  color: var(--admin-text-muted);
   margin-bottom: 7px;
 }
 .admin-form-input,
@@ -377,13 +384,13 @@
 .admin-form-textarea {
   width: 100%;
   padding: 10px 13px;
-  background: #0F0F0D;
-  border: 1px solid rgba(255,255,255,0.07);
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border-soft);
   border-radius: 4px;
   font-family: 'Jost', sans-serif;
   font-size: 13px;
   font-weight: 300;
-  color: #E8E4DC;
+  color: var(--admin-text);
   outline: none;
   transition: border-color 0.2s;
   appearance: none;
@@ -399,7 +406,7 @@
   justify-content: flex-end;
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid rgba(255,255,255,0.05);
+  border-top: 1px solid var(--admin-border-soft);
 }
 
 /* ---- Toggle ---- */

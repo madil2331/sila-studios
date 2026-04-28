@@ -31,6 +31,9 @@ export default function DashboardPage() {
   const inStock = products.filter(p => p.in_stock).length
   const totalOrders = orders.length
   const pendingOrders = orders.filter(o => o.status === 'Pending').length
+  const deliveredRevenue = orders
+    .filter(o => o.status === 'Delivered' && o.cod_amount != null)
+    .reduce((sum, o) => sum + Number(o.cod_amount || 0), 0)
   const recentOrders = orders.slice(0, 6)
 
   return (
@@ -67,11 +70,11 @@ export default function DashboardPage() {
                   <div className="admin-stat-sub">needs attention</div>
                 </div>
                 <div className="admin-stat">
-                  <div className="admin-stat-label">Delivered</div>
+                  <div className="admin-stat-label">Delivered Revenue</div>
                   <div className="admin-stat-value" style={{ color: '#5DCAA5' }}>
-                    {orders.filter(o => o.status === 'Delivered').length}
+                    Rs. {deliveredRevenue.toLocaleString('en-PK')}
                   </div>
-                  <div className="admin-stat-sub">completed</div>
+                  <div className="admin-stat-sub">delivered COD only</div>
                 </div>
               </div>
 
