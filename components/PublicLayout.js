@@ -4,6 +4,7 @@ import Navbar from './Navbar'
 import Footer from './Footer'
 import WhatsAppButton from './WhatsAppButton'
 import AnnouncementBar from './AnnouncementBar'
+import AnalyticsPing from './AnalyticsPing'
 
 export default function PublicLayout({ children }) {
   const pathname = usePathname()
@@ -14,6 +15,7 @@ export default function PublicLayout({ children }) {
   return (
     <>
       <AnnouncementBar />
+      <AnalyticsPing />
       <Navbar />
       <main>{children}</main>
       <Footer />

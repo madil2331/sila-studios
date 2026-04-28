@@ -6,6 +6,7 @@ import AnnouncementBar from '@/components/AnnouncementBar'
 import PublicLayout from '@/components/PublicLayout'
 
 export const metadata = {
+  metadataBase: new URL('https://silastudios.store'),
   title: 'Sila Studios — Where Elegance Fits',
   description:
     'Premium ladies fashion crafted in Karachi. Refined silhouettes, elegant fabrics, curated for the modern Pakistani woman. Order via WhatsApp.',

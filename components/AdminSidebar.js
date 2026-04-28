@@ -34,6 +34,13 @@ export default function AdminSidebar() {
         <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 12h6M9 16h4"/></svg>
       ),
     },
+    {
+      href: '/admin/analytics',
+      label: 'Analytics',
+      icon: (
+        <svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M20 19V9"/><path d="M8 19v-6"/><path d="M16 19v-3"/></svg>
+      ),
+    },
   ]
 
   return (

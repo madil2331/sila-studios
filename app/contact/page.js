@@ -3,12 +3,14 @@ export const metadata = {
   description: 'Get in touch with Sila Studios. Order via WhatsApp, follow us on Instagram, or send us a message.',
 }
 
-// TODO: Replace with your actual WhatsApp number
-const WHATSAPP_NUMBER = '+92-316-3973017'
-const WHATSAPP_MSG = encodeURIComponent("Hi Sila Studios! I'd like to get in touch. 🌸")
+import SubscribeForm from '@/components/SubscribeForm'
+import { getWhatsAppLink } from '@/lib/whatsapp'
+
+const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '03163973017'
+const WHATSAPP_MSG = "Hi Sila Studios! I'd like to get in touch. 🌸"
 
 export default function ContactPage() {
-  const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`
+  const waLink = getWhatsAppLink(WHATSAPP_MSG, WHATSAPP_NUMBER)
 
   return (
     <div className="container">
@@ -19,6 +21,14 @@ export default function ContactPage() {
         <p className="body-lg" style={{ maxWidth: 480, margin: '16px auto 0' }}>
           Questions about sizing? Want to place a custom order? We love hearing from you.
         </p>
+      </div>
+
+      <div style={{ maxWidth: 820, margin: '0 auto 40px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)', padding: 22 }}>
+        <p className="label" style={{ marginBottom: 10 }}>Stay in the loop</p>
+        <p style={{ marginTop: 0, color: 'var(--muted)', fontSize: 13, lineHeight: 1.8 }}>
+          Get drop alerts and new arrivals. Leave your WhatsApp or email (optional name).
+        </p>
+        <SubscribeForm />
       </div>
 
       <div className="contact-grid">
@@ -129,7 +139,7 @@ export default function ContactPage() {
               Note: This form is for inquiries. For fastest response, please use WhatsApp directly.
             </p>
             <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`}
+              href={waLink}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary"

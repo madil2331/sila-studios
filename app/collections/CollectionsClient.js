@@ -4,18 +4,23 @@ import { useState } from 'react'
 import { PRODUCT_CATEGORIES } from '@/lib/product-categories'
 import { getWhatsAppLink } from '@/lib/whatsapp'
 
-const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923XXXXXXXXXX'
+const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '03163973017'
 /** Fixed locale avoids server/client hydration mismatches from default toLocaleString(). */
 const PRICE_LOCALE = 'en-US'
 
 function ProductCard({ product }) {
-  const priceLabel = `Rs. ${Number(product.price).toLocaleString(PRICE_LOCALE)}`
-  const waMsg = `Hi Sila Studios! I'm interested in the "${product.name}" (${priceLabel}). Is it available? 🌸`
-  const waLink = getWhatsAppLink(waMsg, WHATSAPP_NUMBER)
+  const basePrice = Number(product.price || 0)
+  const discounted = product.discount_price != null ? Number(product.discount_price) : null
+  const compareAt = product.compare_at_price != null ? Number(product.compare_at_price) : null
+  const showPrice = discounted != null && Number.isFinite(discounted) ? discounted : basePrice
+  const strikePrice = compareAt != null && Number.isFinite(compareAt) ? compareAt : (discounted != null ? basePrice : null)
+  const priceLabel = `Rs. ${showPrice.toLocaleString(PRICE_LOCALE)}`
+  const waLink = `/order?product=${encodeURIComponent(product.id)}`
 
   return (
     <div className="product-card">
       <div className="product-image-wrap">
+        <a href={`/products/${encodeURIComponent(product.id)}`} style={{ display: 'block', position: 'absolute', inset: 0 }} aria-label={`View ${product.name}`} />
         {product.image_url ? (
           <img src={product.image_url} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
@@ -31,14 +36,23 @@ function ProductCard({ product }) {
         {product.badge && (
           <span className={`product-badge ${product.badge === 'New' ? 'new' : ''}`}>{product.badge}</span>
         )}
-        <a className="product-order-btn" href={waLink} target="_blank" rel="noopener noreferrer">
+        <a className="product-order-btn" href={waLink} style={{ position: 'relative', zIndex: 2 }}>
           Order via WhatsApp →
         </a>
       </div>
       <div className="product-info">
-        <p className="product-name">{product.name}</p>
+        <p className="product-name">
+          <a href={`/products/${encodeURIComponent(product.id)}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+            {product.name}
+          </a>
+        </p>
         <p className="product-price">
           <span className="current">{priceLabel}</span>
+          {strikePrice != null && strikePrice > showPrice ? (
+            <span style={{ marginLeft: 10, fontSize: 12, color: 'var(--muted)', textDecoration: 'line-through' }}>
+              Rs. {strikePrice.toLocaleString(PRICE_LOCALE)}
+            </span>
+          ) : null}
           {product.category && (
             <span style={{ fontSize: 11, color: 'var(--muted)', letterSpacing: '0.06em' }}> · {product.category}</span>
           )}
