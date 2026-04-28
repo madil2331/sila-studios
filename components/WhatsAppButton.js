@@ -1,9 +1,10 @@
-// TODO: Replace with your actual WhatsApp number
-const WHATSAPP_NUMBER = '+92-316-3973017'
-const WHATSAPP_MSG = encodeURIComponent("Hi Sila Studios! I'd like to place an order. 🌸")
+import { getWhatsAppLink } from '@/lib/whatsapp'
+
+const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+92-316-3973017'
+const WHATSAPP_MSG = "Hi Sila Studios! I'd like to place an order. 🌸"
 
 export default function WhatsAppButton() {
-  const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`
+  const waLink = getWhatsAppLink(WHATSAPP_MSG, WHATSAPP_NUMBER)
   return (
     <a
       className="wa-float"

@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { getWhatsAppLink } from '@/lib/whatsapp'
 
-// TODO: Replace with your actual WhatsApp number (e.g. 923001234567)
-const WHATSAPP_NUMBER = '+92-316-3973017'
-const WHATSAPP_MSG = encodeURIComponent("Hi Sila Studios! I'd like to place an order. 🌸")
+const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+92-316-3973017'
+const WHATSAPP_MSG = "Hi Sila Studios! I'd like to place an order. 🌸"
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -24,7 +24,7 @@ export default function Navbar() {
     return () => { document.body.style.overflow = '' }
   }, [menuOpen])
 
-  const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`
+  const waLink = getWhatsAppLink(WHATSAPP_MSG, WHATSAPP_NUMBER)
 
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>

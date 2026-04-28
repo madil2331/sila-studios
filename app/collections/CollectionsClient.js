@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { PRODUCT_CATEGORIES } from '@/lib/product-categories'
+import { getWhatsAppLink } from '@/lib/whatsapp'
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923XXXXXXXXXX'
 /** Fixed locale avoids server/client hydration mismatches from default toLocaleString(). */
@@ -9,8 +10,8 @@ const PRICE_LOCALE = 'en-US'
 
 function ProductCard({ product }) {
   const priceLabel = `Rs. ${Number(product.price).toLocaleString(PRICE_LOCALE)}`
-  const waMsg = encodeURIComponent(`Hi Sila Studios! I'm interested in the "${product.name}" (${priceLabel}). Is it available? 🌸`)
-  const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${waMsg}`
+  const waMsg = `Hi Sila Studios! I'm interested in the "${product.name}" (${priceLabel}). Is it available? 🌸`
+  const waLink = getWhatsAppLink(waMsg, WHATSAPP_NUMBER)
 
   return (
     <div className="product-card">

@@ -1,11 +1,12 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { getWhatsAppLink } from '@/lib/whatsapp'
 
-const WHATSAPP_NUMBER = '+92-316-3973017'
-const WHATSAPP_MSG = encodeURIComponent("Hi Sila Studios! I'd like to know more. 🌸")
+const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+92-316-3973017'
+const WHATSAPP_MSG = "Hi Sila Studios! I'd like to know more. 🌸"
 
 export default function Footer() {
-  const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`
+  const waLink = getWhatsAppLink(WHATSAPP_MSG, WHATSAPP_NUMBER)
   const year = new Date().getFullYear()
 
   return (

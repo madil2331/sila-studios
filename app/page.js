@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
 import { unstable_noStore as noStore } from 'next/cache'
+import { getWhatsAppLink } from '@/lib/whatsapp'
 
 /** Featured strip must reflect latest Supabase rows after admin changes. */
 export const dynamic = 'force-dynamic'
@@ -29,7 +30,7 @@ async function getFeaturedProducts() {
     return []
   }
 }
-const WHATSAPP_MSG = encodeURIComponent("Hi Sila Studios! I'd like to place an order. 🌸")
+const WHATSAPP_MSG = "Hi Sila Studios! I'd like to place an order. 🌸"
 
 
 
@@ -43,8 +44,8 @@ function NeedleIcon() {
 
 function ProductCard({ product }) {
   const priceLabel = `Rs. ${Number(product.price).toLocaleString(PRICE_LOCALE)}`
-  const waMsg = encodeURIComponent(`Hi Sila Studios! I'm interested in the "${product.name}" (${priceLabel}). Is it available? 🌸`)
-  const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${waMsg}`
+  const waMsg = `Hi Sila Studios! I'm interested in the "${product.name}" (${priceLabel}). Is it available? 🌸`
+  const waLink = getWhatsAppLink(waMsg, WHATSAPP_NUMBER)
   return (
     <div className="product-card">
       <div className="product-image-wrap">
@@ -83,7 +84,7 @@ function ProductCard({ product }) {
 
 export default async function HomePage() {
   const products = await getFeaturedProducts()
-  const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`
+  const waLink = getWhatsAppLink(WHATSAPP_MSG, WHATSAPP_NUMBER)
   return (
     <>
       {/* ── HERO ── */}
