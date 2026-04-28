@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import AdminSidebar from '@/components/AdminSidebar'
 import Link from 'next/link'
+import { adminFetch } from '@/lib/admin-fetch'
 
 const STATUS_ORDER = ['Pending', 'Confirmed', 'Dispatched', 'Delivered', 'Cancelled']
 
@@ -17,8 +18,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/admin/products').then(r => r.json()),
-      fetch('/api/admin/orders').then(r => r.json()),
+      adminFetch('/api/admin/products').then(r => r.json()),
+      adminFetch('/api/admin/orders').then(r => r.json()),
     ]).then(([p, o]) => {
       setProducts(Array.isArray(p) ? p : [])
       setOrders(Array.isArray(o) ? o : [])

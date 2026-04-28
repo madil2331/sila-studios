@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { getSessionFromCookies } from '@/lib/auth'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
+const NO_STORE = { 'Cache-Control': 'no-store, must-revalidate' }
+
 async function requireAuth() {
   const session = await getSessionFromCookies()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -49,5 +51,5 @@ export async function POST(request) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data, { status: 201 })
+  return NextResponse.json(data, { status: 201, headers: NO_STORE })
 }

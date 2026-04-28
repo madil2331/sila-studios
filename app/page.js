@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
+import { unstable_noStore as noStore } from 'next/cache'
 
 /** Featured strip must reflect latest Supabase rows after admin changes. */
 export const dynamic = 'force-dynamic'
@@ -10,6 +11,7 @@ const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923XXXXXXXXX
 const PRICE_LOCALE = 'en-US'
 
 async function getFeaturedProducts() {
+  noStore()
   try {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import AdminSidebar from '@/components/AdminSidebar'
+import { adminFetch } from '@/lib/admin-fetch'
 
 const STATUSES = ['Pending', 'Confirmed', 'Dispatched', 'Delivered', 'Cancelled']
 
@@ -31,7 +32,7 @@ export default function OrdersPage() {
 
   async function load() {
     setLoading(true)
-    const res = await fetch('/api/admin/orders')
+    const res = await adminFetch('/api/admin/orders')
     const data = await res.json()
     setOrders(Array.isArray(data) ? data : [])
     setLoading(false)
@@ -70,7 +71,7 @@ export default function OrdersPage() {
     try {
       const url = modal === 'edit' ? `/api/admin/orders/${editId}` : '/api/admin/orders'
       const method = modal === 'edit' ? 'PUT' : 'POST'
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -90,7 +91,7 @@ export default function OrdersPage() {
   }
 
   async function handleDelete(id) {
-    const res = await fetch(`/api/admin/orders/${id}`, { method: 'DELETE' })
+    const res = await adminFetch(`/api/admin/orders/${id}`, { method: 'DELETE' })
     if (res.ok) {
       setToast({ msg: 'Order deleted.', type: 'success' })
       setDeleteConfirm(null)
@@ -99,7 +100,7 @@ export default function OrdersPage() {
   }
 
   async function quickStatus(order, status) {
-    await fetch(`/api/admin/orders/${order.id}`, {
+    await adminFetch(`/api/admin/orders/${order.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...order, status }),

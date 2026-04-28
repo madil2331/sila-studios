@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { unstable_noStore as noStore } from 'next/cache'
 import CollectionsClient from './CollectionsClient'
 
 /** Always fetch fresh catalog from Supabase (admin edits must show without redeploy). */
@@ -10,6 +11,7 @@ export const metadata = {
 }
 
 async function getProducts() {
+  noStore()
   try {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,

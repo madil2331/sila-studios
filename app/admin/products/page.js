@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import AdminSidebar from '@/components/AdminSidebar'
 import { PRODUCT_CATEGORIES } from '@/lib/product-categories'
+import { adminFetch } from '@/lib/admin-fetch'
 
 const CATEGORIES = PRODUCT_CATEGORIES
 const BADGES = ['', 'New', 'Bestseller', 'Premium', 'Sale']
@@ -18,10 +19,6 @@ function ImageUploader({ value, onChange }) {
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState(value || '')
   const [dragOver, setDragOver] = useState(false)
-
-  useEffect(() => {
-    setPreview(value || '')
-  }, [value])
 
   async function handleFile(file) {
     if (!file) return
@@ -42,7 +39,7 @@ function ImageUploader({ value, onChange }) {
     fd.append('file', file)
 
     try {
-      const res = await fetch('/api/admin/upload', { method: 'POST', body: fd })
+      const res = await adminFetch('/api/admin/upload', { method: 'POST', body: fd })
       const data = await res.json()
       if (res.ok) {
         onChange(data.url)
@@ -148,7 +145,7 @@ export default function ProductsPage() {
 
   async function load() {
     setLoading(true)
-    const res = await fetch('/api/admin/products')
+    const res = await adminFetch('/api/admin/products')
     const data = await res.json()
     setProducts(Array.isArray(data) ? data : [])
     setLoading(false)
@@ -158,8 +155,18 @@ export default function ProductsPage() {
 
   function openAdd() { setForm(EMPTY_FORM); setEditId(null); setModal('add') }
   function openEdit(p) {
-    setForm({ name: p.name||'', price: p.price||'', category: p.category||'', description: p.description||'', badge: p.badge||'', in_stock: p.in_stock??true, image_url: p.image_url||'' })
-    setEditId(p.id); setModal('edit')
+    const priceStr = p.price != null && p.price !== '' ? String(p.price) : ''
+    setForm({
+      name: p.name || '',
+      price: priceStr,
+      category: p.category || '',
+      description: p.description || '',
+      badge: p.badge || '',
+      in_stock: p.in_stock ?? true,
+      image_url: p.image_url || '',
+    })
+    setEditId(p.id)
+    setModal('edit')
   }
   function closeModal() { setModal(null); setForm(EMPTY_FORM); setEditId(null) }
 
@@ -168,7 +175,7 @@ export default function ProductsPage() {
     setSaving(true)
     try {
       const url = modal === 'edit' ? `/api/admin/products/${editId}` : '/api/admin/products'
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method: modal === 'edit' ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -185,12 +192,12 @@ export default function ProductsPage() {
   }
 
   async function handleDelete(id) {
-    const res = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' })
+    const res = await adminFetch(`/api/admin/products/${id}`, { method: 'DELETE' })
     if (res.ok) { setToast({ msg: 'Product deleted.', type: 'success' }); setDeleteConfirm(null); load() }
   }
 
   async function toggleStock(product) {
-    await fetch(`/api/admin/products/${product.id}`, {
+    await adminFetch(`/api/admin/products/${product.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...product, in_stock: !product.in_stock }),
@@ -289,6 +296,7 @@ export default function ProductsPage() {
               <div>
                 <label className="admin-form-label" style={{ marginBottom: 8, display: 'block' }}>Photo</label>
                 <ImageUploader
+                  key={modal === 'edit' ? `edit-${editId}` : `add-${modal}`}
                   value={form.image_url}
                   onChange={url => setForm({ ...form, image_url: url })}
                 />

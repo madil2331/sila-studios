@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { getSessionFromCookies } from '@/lib/auth'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
+const NO_STORE = { 'Cache-Control': 'no-store, must-revalidate' }
+
 export async function POST(request) {
   const session = await getSessionFromCookies()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -45,7 +47,7 @@ export async function POST(request) {
       .from('product-images')
       .getPublicUrl(filename)
 
-    return NextResponse.json({ url: urlData.publicUrl })
+    return NextResponse.json({ url: urlData.publicUrl }, { headers: NO_STORE })
   } catch (err) {
     console.error('Upload error:', err)
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
