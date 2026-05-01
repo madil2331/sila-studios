@@ -139,14 +139,40 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <div className="hero-logo-wrap">
-            <Image
-              src="/logo_social.png"
-              alt="Sila Studios"
-              width={380}
-              height={380}
-              style={{ borderRadius: '50%', objectFit: 'cover' }}
-            />
+          <div className="hero-showcase" aria-label="Featured products">
+            {products?.length ? (
+              <>
+                <a className="hero-showcase-main" href={`/products/${encodeURIComponent(products[0].id)}`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={products[0].image_url || '/sila_banner.png'}
+                    alt={products[0].name || 'Featured product'}
+                  />
+                  <div className="hero-showcase-caption">
+                    <span className="label" style={{ color: 'rgba(250,248,245,0.85)' }}>Featured</span>
+                    <span className="hero-showcase-name">{products[0].name}</span>
+                  </div>
+                </a>
+                <div className="hero-showcase-stack">
+                  {products.slice(1, 3).map(p => (
+                    <a key={p.id} className="hero-showcase-tile" href={`/products/${encodeURIComponent(p.id)}`}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={p.image_url || '/sila_banner.png'} alt={p.name || 'Product'} />
+                    </a>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="hero-showcase-fallback">
+                <Image
+                  src="/logo.png"
+                  alt="Sila Studios"
+                  width={260}
+                  height={260}
+                  style={{ width: '100%', height: 'auto', objectFit: 'contain', opacity: 0.9 }}
+                />
+              </div>
+            )}
           </div>
         </div>
       </section>

@@ -25,35 +25,26 @@ export async function PUT(request, { params }) {
   if (!id) return NextResponse.json({ error: 'Missing order id' }, { status: 400 })
 
   const body = await request.json()
-  const {
-    customer_name,
-    customer_phone,
-    customer_city,
-    product_name,
-    status,
-    notes,
-    cod_amount,
-    courier_name,
-    tracking_number,
-    shipment_status,
-  } = body
-  const amount = parseAmount(cod_amount)
+  const update = {}
+  if ('customer_name' in body) update.customer_name = body.customer_name
+  if ('customer_phone' in body) update.customer_phone = body.customer_phone
+  if ('customer_city' in body) update.customer_city = body.customer_city
+  if ('product_name' in body) update.product_name = body.product_name
+  if ('status' in body) update.status = body.status
+  if ('notes' in body) update.notes = body.notes
+  if ('cod_amount' in body) update.cod_amount = parseAmount(body.cod_amount)
+  if ('courier_name' in body) update.courier_name = body.courier_name || null
+  if ('tracking_number' in body) update.tracking_number = body.tracking_number || null
+  if ('shipment_status' in body) update.shipment_status = body.shipment_status || null
+
+  if (Object.keys(update).length === 0) {
+    return NextResponse.json({ error: 'No fields to update' }, { status: 400, headers: NO_STORE })
+  }
 
   const db = getSupabaseAdmin()
   const { data, error } = await db
     .from('orders')
-    .update({
-      customer_name,
-      customer_phone,
-      customer_city,
-      product_name,
-      status,
-      notes,
-      cod_amount: amount,
-      courier_name: courier_name || null,
-      tracking_number: tracking_number || null,
-      shipment_status: shipment_status || null,
-    })
+    .update(update)
     .eq('id', id)
     .select()
     .single()

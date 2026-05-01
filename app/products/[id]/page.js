@@ -105,7 +105,7 @@ export default async function ProductDetailPage({ params }) {
 
           <div style={{ marginTop: 26, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <Link href={`/order?product=${encodeURIComponent(product.id)}`} className="btn-gold">
-              Order via WhatsApp →
+              Order Now →
             </Link>
             <Link href="/track" className="btn-outline">
               Track an Order

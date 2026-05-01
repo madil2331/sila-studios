@@ -1,12 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 export default function TrackPage() {
+  const searchParams = useSearchParams()
   const [orderId, setOrderId] = useState('')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    const id = searchParams.get('id')
+    if (id && !orderId) setOrderId(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
 
   async function onSubmit(e) {
     e.preventDefault()

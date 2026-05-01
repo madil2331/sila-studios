@@ -105,13 +105,26 @@ export default function OrdersPage() {
   }
 
   async function quickStatus(order, status) {
-    await adminFetch(`/api/admin/orders/${order.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...order, status }),
-    })
-    setToast({ msg: `Marked as ${status}.`, type: 'success' })
-    load()
+    // Optimistic UI update so the select doesn't "snap back" during reload
+    setOrders(prev => prev.map(o => (o.id === order.id ? { ...o, status } : o)))
+    try {
+      const res = await adminFetch(`/api/admin/orders/${order.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      })
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}))
+        setToast({ msg: d?.error || 'Failed to update status.', type: 'error' })
+        await load()
+        return
+      }
+      setToast({ msg: `Marked as ${status}.`, type: 'success' })
+      load()
+    } catch {
+      setToast({ msg: 'Network error.', type: 'error' })
+      await load()
+    }
   }
 
   const filtered = filter === 'All' ? orders : orders.filter(o => o.status === filter)
