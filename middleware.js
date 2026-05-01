@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { verifySession, SESSION_COOKIE } from '@/lib/auth'
 
+export const runtime = 'nodejs'
+
 export function middleware(request) {
   const { pathname } = request.nextUrl
 
