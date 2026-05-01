@@ -63,17 +63,11 @@ export async function POST(request) {
       order_number: ord,
     }
 
-    // Your Supabase schema may not have all columns yet (e.g. order_number).
-    let order = null
-    let oErr = null
-    ;({ data: order, error: oErr } = await db.from('orders').insert([insertFull]).select('id').single())
-
-    if (oErr) {
-      const msg = String(oErr.message || '')
-      const looksLikeMissingColumn = msg.includes('schema cache') || msg.includes('Could not find the') || msg.includes('column')
-      if (!looksLikeMissingColumn) return NextResponse.json({ error: oErr.message }, { status: 500, headers: NO_STORE })
-
-      const minimal = {
+    // Your Supabase schema may not have all columns yet. Try progressively smaller payloads.
+    const payloads = [
+      insertFull,
+      // Drop optional logistics + order_number first
+      {
         customer_name,
         customer_phone,
         customer_city,
@@ -81,10 +75,45 @@ export async function POST(request) {
         status: 'Pending',
         notes,
         cod_amount: Number.isFinite(price) ? Math.trunc(price) : null,
+      },
+      // Drop cod_amount if the table doesn't have it
+      {
+        customer_name,
+        customer_phone,
+        customer_city,
+        product_name: product.name,
+        status: 'Pending',
+        notes,
+      },
+      // Absolute minimum (matches the old WhatsApp-intent fallback style)
+      {
+        customer_name: customer_name || null,
+        customer_phone: customer_phone || null,
+        customer_city: customer_city || null,
+        product_name: product.name,
+        status: 'Pending',
+        notes,
+      },
+    ]
+
+    let order = null
+    let lastError = null
+    for (const p of payloads) {
+      // eslint-disable-next-line no-await-in-loop
+      const attempt = await db.from('orders').insert([p]).select('id').single()
+      if (!attempt.error && attempt.data) {
+        order = attempt.data
+        lastError = null
+        break
       }
-      const retry = await db.from('orders').insert([minimal]).select('id').single()
-      if (retry.error) return NextResponse.json({ error: retry.error.message }, { status: 500, headers: NO_STORE })
-      order = retry.data
+      lastError = attempt.error
+      const msg = String(attempt.error?.message || '')
+      const looksLikeMissingColumn = msg.includes('schema cache') || msg.includes('Could not find the') || msg.includes('column')
+      if (!looksLikeMissingColumn) break
+    }
+
+    if (!order) {
+      return NextResponse.json({ error: lastError?.message || 'Could not create order' }, { status: 500, headers: NO_STORE })
     }
 
     const msg = `Assalam-o-Alaikum! ✨\n\nI've placed Order #${ord} on Sila Studios:\n\n📦 Product: ${product.name}\n💰 Price: ${formatPrice(price)}\n📏 Size: ${size || '—'}\n📍 City: ${customer_city}\n\nPlease confirm availability and estimated delivery time.\n\nJazakAllah! 🌸`
