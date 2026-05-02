@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
 import { unstable_noStore as noStore } from 'next/cache'
 import { getWhatsAppLink } from '@/lib/whatsapp'
+import HeroNewCarousel from '@/components/HeroNewCarousel'
 
 /** Featured strip must reflect latest Supabase rows after admin changes. */
 export const dynamic = 'force-dynamic'
@@ -30,6 +31,27 @@ async function getFeaturedProducts() {
     return []
   }
 }
+
+async function getNewProducts() {
+  noStore()
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      { auth: { persistSession: false } }
+    )
+    const { data } = await supabase
+      .from('products')
+      .select('*')
+      .eq('in_stock', true)
+      .eq('badge', 'New')
+      .order('created_at', { ascending: false })
+      .limit(8)
+    return data || []
+  } catch {
+    return []
+  }
+}
 const WHATSAPP_MSG = "Hi Sila Studios! I'd like to place an order. 🌸"
 
 
@@ -50,10 +72,11 @@ function ProductCard({ product }) {
   const strikePrice = compareAt != null && Number.isFinite(compareAt) ? compareAt : (discounted != null ? basePrice : null)
   const priceLabel = `Rs. ${showPrice.toLocaleString(PRICE_LOCALE)}`
   const waLink = `/order?product=${encodeURIComponent(product.id)}`
+  const productPath = `/products/${encodeURIComponent(product.handle || product.id)}`
   return (
     <div className="product-card">
       <div className="product-image-wrap">
-        <a href={`/products/${encodeURIComponent(product.id)}`} style={{ display: 'block', position: 'absolute', inset: 0 }} aria-label={`View ${product.name}`} />
+        <a href={productPath} style={{ display: 'block', position: 'absolute', inset: 0 }} aria-label={`View ${product.name}`} />
         {product.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={product.image_url} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -76,7 +99,7 @@ function ProductCard({ product }) {
       </div>
       <div className="product-info">
         <p className="product-name">
-          <a href={`/products/${encodeURIComponent(product.id)}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+          <a href={productPath} style={{ color: 'inherit', textDecoration: 'none' }}>
             {product.name}
           </a>
         </p>
@@ -98,81 +121,44 @@ function ProductCard({ product }) {
 
 export default async function HomePage() {
   const products = await getFeaturedProducts()
+  const newProducts = await getNewProducts()
   const waLink = getWhatsAppLink(WHATSAPP_MSG, WHATSAPP_NUMBER)
   return (
     <>
       {/* ── HERO ── */}
       <section className="hero">
-        <div className="hero-bg">
-          <Image
-            src="/sila_banner.png"
-            alt="Sila Studios — Where Elegance Fits"
-            fill
-            style={{ objectFit: 'cover', objectPosition: 'center' }}
-            priority
-          />
-          <div className="hero-overlay" />
-        </div>
+        <div className="hero-overlay" />
 
         <div className="hero-content">
           <div className="hero-text">
             <div className="hero-eyebrow">
               <span className="hero-eyebrow-line" />
-              <span className="label">New Collection — 2025</span>
+              <span className="label">New Spring Collection 2025</span>
             </div>
             <h1 className="hero-heading">
-              <span className="line-1">Where</span>
-              <span className="line-2">Elegance</span>
-              <span className="line-3">Fits.</span>
+              <span className="line-1">New Spring</span>
+              <span className="line-2">Collection</span>
+              <span className="line-3">2025</span>
             </h1>
-            <p className="hero-sub">Ladies fashion · Crafted in Karachi · سِلا</p>
+            <p className="hero-sub">Lawn suits crafted in Karachi</p>
             <div className="hero-actions">
-              <Link href="/collections" className="btn-primary">
-                Explore Collection
+              <Link href="/collections" className="btn-gold">
+                Browse New Arrivals →
               </Link>
-              <a href={waLink} target="_blank" rel="noopener noreferrer" className="btn-whatsapp">
-                <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 14, height: 14 }}>
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM11.99 2C6.476 2 2 6.477 2 11.99c0 1.872.522 3.62 1.432 5.113L2.046 22l5.02-1.365A9.945 9.945 0 0 0 11.99 22C17.522 22 22 17.523 22 12.01 22 6.477 17.522 2 11.99 2zm0 18.17a8.165 8.165 0 0 1-4.158-1.141l-.298-.178-3.09.84.838-3.01-.195-.31A8.172 8.172 0 0 1 3.83 12.01C3.83 7.484 7.485 3.83 12.01 3.83c4.504 0 8.16 3.654 8.16 8.18 0 4.505-3.656 8.16-8.18 8.16z"/>
-                </svg>
-                Order Now
+              <a href={waLink} target="_blank" rel="noopener noreferrer" className="btn-wa-outline">
+                Order via WhatsApp
               </a>
+            </div>
+            <div className="hero-trust">
+              <span className="hero-trust-note">Free delivery in Karachi</span>
+              <div className="hero-trust-badges">
+                <span className="hero-trust-badge">Premium Fabrics Only</span>
+              </div>
             </div>
           </div>
 
-          <div className="hero-showcase" aria-label="Featured products">
-            {products?.length ? (
-              <>
-                <a className="hero-showcase-main" href={`/products/${encodeURIComponent(products[0].id)}`}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={products[0].image_url || '/sila_banner.png'}
-                    alt={products[0].name || 'Featured product'}
-                  />
-                  <div className="hero-showcase-caption">
-                    <span className="label" style={{ color: 'rgba(250,248,245,0.85)' }}>Featured</span>
-                    <span className="hero-showcase-name">{products[0].name}</span>
-                  </div>
-                </a>
-                <div className="hero-showcase-stack">
-                  {products.slice(1, 3).map(p => (
-                    <a key={p.id} className="hero-showcase-tile" href={`/products/${encodeURIComponent(p.id)}`}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={p.image_url || '/sila_banner.png'} alt={p.name || 'Product'} />
-                    </a>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <div className="hero-showcase-fallback">
-                <Image
-                  src="/logo.png"
-                  alt="Sila Studios"
-                  width={260}
-                  height={260}
-                  style={{ width: '100%', height: 'auto', objectFit: 'contain', opacity: 0.9 }}
-                />
-              </div>
-            )}
+          <div className="hero-right" aria-label="New arrivals">
+            <HeroNewCarousel products={newProducts?.length ? newProducts : products} />
           </div>
         </div>
       </section>

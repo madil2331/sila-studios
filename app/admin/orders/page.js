@@ -12,6 +12,13 @@ const EMPTY_FORM = {
   cod_amount: '', courier_name: '', tracking_number: '', shipment_status: '',
 }
 
+function orderNoFromOrder(order) {
+  if (!order) return ''
+  if (order.order_number) return String(order.order_number)
+  const m = String(order.notes || '').match(/Order No:\s*(ORD-\d{4,})/i)
+  return m?.[1] || ''
+}
+
 function Toast({ msg, type, onDone }) {
   useEffect(() => {
     const t = setTimeout(onDone, 3000)
@@ -184,6 +191,7 @@ export default function OrdersPage() {
               <table className="admin-table">
                 <thead>
                   <tr>
+                    <th>Order</th>
                     <th>Customer</th>
                     <th>Phone</th>
                     <th>City</th>
@@ -199,6 +207,14 @@ export default function OrdersPage() {
                 <tbody>
                   {filtered.map(order => (
                     <tr key={order.id}>
+                      <td style={{ fontSize: 12, color: '#C8C4BC', fontVariantNumeric: 'tabular-nums' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          <span style={{ color: '#C4A462', fontSize: 11, letterSpacing: '0.08em' }}>
+                            {orderNoFromOrder(order) || '—'}
+                          </span>
+                          <span style={{ opacity: 0.75 }}>#{String(order.id).slice(0, 8)}</span>
+                        </div>
+                      </td>
                       <td className="name-cell">{order.customer_name || '—'}</td>
                       <td>
                         {order.customer_phone ? (

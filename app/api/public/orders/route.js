@@ -116,7 +116,9 @@ export async function POST(request) {
       return NextResponse.json({ error: lastError?.message || 'Could not create order' }, { status: 500, headers: NO_STORE })
     }
 
-    const msg = `Assalam-o-Alaikum! ✨\n\nI've placed Order #${ord} on Sila Studios:\n\n📦 Product: ${product.name}\n💰 Price: ${formatPrice(price)}\n📏 Size: ${size || '—'}\n📍 City: ${customer_city}\n\nPlease confirm availability and estimated delivery time.\n\nJazakAllah! 🌸`
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://silastudios.store'
+    const trackUrl = `${baseUrl.replace(/\/$/, '')}/track?id=${encodeURIComponent(order.id)}`
+    const msg = `Assalam-o-Alaikum! ✨\n\nI've placed Order #${ord} on Sila Studios:\n\n📦 Product: ${product.name}\n💰 Price: ${formatPrice(price)}\n📏 Size: ${size || '—'}\n📍 City: ${customer_city}\n\n🔎 Track: ${trackUrl}\n🆔 Order ID: ${order.id}\n\nPlease confirm availability and estimated delivery time.\n\nJazakAllah! 🌸`
     const waLink = getWhatsAppLink(msg)
 
     return NextResponse.json({ order_id: order.id, order_number: ord, waLink }, { status: 201, headers: NO_STORE })

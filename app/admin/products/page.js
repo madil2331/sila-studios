@@ -9,6 +9,7 @@ const CATEGORIES = PRODUCT_CATEGORIES
 const BADGES = ['', 'New', 'Bestseller', 'Premium', 'Sale']
 const EMPTY_FORM = {
   name: '',
+  handle: '',
   price: '',
   category: '',
   description: '',
@@ -20,6 +21,16 @@ const EMPTY_FORM = {
   available_colors: '',
   compare_at_price: '',
   discount_price: '',
+}
+
+function slugify(input) {
+  return String(input || '')
+    .toLowerCase()
+    .trim()
+    .replace(/['"]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 64)
 }
 
 function Toast({ msg, type, onDone }) {
@@ -171,6 +182,7 @@ export default function ProductsPage() {
     const priceStr = p.price != null && p.price !== '' ? String(p.price) : ''
     setForm({
       name: p.name || '',
+      handle: p.handle || '',
       price: priceStr,
       category: p.category || '',
       description: p.description || '',
@@ -329,7 +341,31 @@ export default function ProductsPage() {
               <div>
                 <div className="admin-form-group">
                   <label className="admin-form-label">Product Name *</label>
-                  <input className="admin-form-input" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. Embroidered Lawn Set" />
+                  <input
+                    className="admin-form-input"
+                    value={form.name}
+                    onChange={e => {
+                      const name = e.target.value
+                      setForm(prev => ({
+                        ...prev,
+                        name,
+                        handle: prev.handle ? prev.handle : slugify(name),
+                      }))
+                    }}
+                    placeholder="e.g. Embroidered Lawn Set"
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Internal Code / URL Handle</label>
+                  <input
+                    className="admin-form-input"
+                    value={form.handle}
+                    onChange={e => setForm({ ...form, handle: slugify(e.target.value) })}
+                    placeholder="e.g. lawn-set-beige-floral-01"
+                  />
+                  <p style={{ margin: '8px 0 0', color: '#3A3830', fontSize: 12, lineHeight: 1.6 }}>
+                    This controls the product URL (e.g. <span style={{ color: '#C4A462' }}>/products/your-handle</span>). Keep it short and consistent.
+                  </p>
                 </div>
                 <div className="admin-form-row">
                   <div className="admin-form-group">

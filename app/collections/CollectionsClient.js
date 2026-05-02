@@ -16,11 +16,12 @@ function ProductCard({ product }) {
   const strikePrice = compareAt != null && Number.isFinite(compareAt) ? compareAt : (discounted != null ? basePrice : null)
   const priceLabel = `Rs. ${showPrice.toLocaleString(PRICE_LOCALE)}`
   const waLink = `/order?product=${encodeURIComponent(product.id)}`
+  const productPath = `/products/${encodeURIComponent(product.handle || product.id)}`
 
   return (
     <div className="product-card">
       <div className="product-image-wrap">
-        <a href={`/products/${encodeURIComponent(product.id)}`} style={{ display: 'block', position: 'absolute', inset: 0 }} aria-label={`View ${product.name}`} />
+        <a href={productPath} style={{ display: 'block', position: 'absolute', inset: 0 }} aria-label={`View ${product.name}`} />
         {product.image_url ? (
           <img src={product.image_url} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
@@ -42,7 +43,7 @@ function ProductCard({ product }) {
       </div>
       <div className="product-info">
         <p className="product-name">
-          <a href={`/products/${encodeURIComponent(product.id)}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+          <a href={productPath} style={{ color: 'inherit', textDecoration: 'none' }}>
             {product.name}
           </a>
         </p>

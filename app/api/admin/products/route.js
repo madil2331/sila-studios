@@ -31,6 +31,7 @@ export async function POST(request) {
   const body = await request.json()
   const {
     name,
+    handle,
     price,
     category,
     description,
@@ -51,6 +52,7 @@ export async function POST(request) {
   const db = getSupabaseAdmin()
   const basePayload = {
     name,
+    handle: handle || null,
     price: parseInt(price),
     category,
     description,
@@ -70,8 +72,18 @@ export async function POST(request) {
 
   let insert = await db.from('products').insert([richPayload]).select().single()
   if (insert.error) {
-    // If schema doesn't have the new columns yet, retry with the base payload.
-    insert = await db.from('products').insert([basePayload]).select().single()
+    // If schema doesn't have some columns yet (e.g. handle/media), retry smaller payloads.
+    const withoutRich = await db.from('products').insert([basePayload]).select().single()
+    if (!withoutRich.error) insert = withoutRich
+    else {
+      const minimal = {
+        name,
+        price: parseInt(price),
+        in_stock: in_stock ?? true,
+        image_url: image_url || null,
+      }
+      insert = await db.from('products').insert([minimal]).select().single()
+    }
   }
 
   if (insert.error) return NextResponse.json({ error: insert.error.message }, { status: 500 })

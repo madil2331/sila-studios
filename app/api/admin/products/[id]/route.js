@@ -26,6 +26,7 @@ export async function PUT(request, { params }) {
   const body = await request.json()
   const {
     name,
+    handle,
     price,
     category,
     description,
@@ -46,6 +47,7 @@ export async function PUT(request, { params }) {
 
   const basePayload = {
     name,
+    handle: handle === undefined ? undefined : (handle || null),
     price: parsedPrice,
     category,
     description,

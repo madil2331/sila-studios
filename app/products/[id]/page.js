@@ -15,14 +15,21 @@ async function getProduct(id) {
     { auth: { persistSession: false } }
   )
 
-  const { data, error } = await supabase
+  // Support both handle-based and legacy id-based URLs.
+  const byHandle = await supabase
+    .from('products')
+    .select('*')
+    .eq('handle', id)
+    .single()
+  if (!byHandle.error && byHandle.data) return byHandle.data
+
+  const byId = await supabase
     .from('products')
     .select('*')
     .eq('id', id)
     .single()
-
-  if (error) return null
-  return data
+  if (byId.error) return null
+  return byId.data
 }
 
 export default async function ProductDetailPage({ params }) {

@@ -34,9 +34,17 @@ Files to update:
 - `components/AnnouncementBar.js`
 - `components/Footer.js`
 
-### 2. Add Product Photos
-Replace the placeholder cards in `app/page.js` and `app/collections/page.js`.
-Put your product images in the `/public` folder.
+### 1b. Site URL (for tracking links)
+Set this so WhatsApp messages include a correct tracking link:
+- `NEXT_PUBLIC_SITE_URL=https://silastudios.store`
+
+### 2. Products: naming + URLs (important)
+Products have:
+- **Product Name**: what customers see (e.g. “Embroidered Lawn Set”)
+- **Internal Code / URL Handle**: what you use internally + in URLs (e.g. `lawn-set-beige-floral-01`)
+
+In Admin → Products, set the **Internal Code / URL Handle** so your product URLs look like:
+- `/products/lawn-set-beige-floral-01`
 
 ### 3. Update Announcement Bar
 In `components/AnnouncementBar.js`, update the scrolling text items.
@@ -102,10 +110,39 @@ sila-studios/
 ---
 
 ## Phase 2 Roadmap (When Ready)
-- Add product database (Supabase — free)
-- Add order management
+- Add/extend product schema (handles, pricing)
+- Extend order management (courier integrations, templates)
 - Integrate PostEx COD API
 - Add Safepay/PostEx payment gateway
+
+---
+
+## Orders (Hybrid flow)
+Flow:
+1. Customer clicks **Order Now**
+2. Fills form (Name, Phone, City, Size, Address)
+3. Order is saved to Supabase immediately
+4. Confirmation shows Order Number + opens WhatsApp with a pre-filled message (includes tracking link)
+
+### Supabase `orders` table recommended columns
+The app will work even if some columns are missing, but for best experience add:
+- `cod_amount` (int)
+- `order_number` (text)
+- `notes` (text)
+- `courier_name` (text)
+- `tracking_number` (text)
+- `shipment_status` (text)
+
+Example SQL (Supabase SQL editor):
+```sql
+alter table public.orders
+add column if not exists cod_amount integer,
+add column if not exists order_number text,
+add column if not exists notes text,
+add column if not exists courier_name text,
+add column if not exists tracking_number text,
+add column if not exists shipment_status text;
+```
 
 ---
 
