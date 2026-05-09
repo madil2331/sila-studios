@@ -8,7 +8,7 @@ export async function POST(request) {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
 
     // Check rate limit
-    const rateCheck = checkRateLimit(ip)
+    const rateCheck = await checkRateLimit(ip)
     if (!rateCheck.allowed) {
       return NextResponse.json({ error: rateCheck.message }, { status: 429 })
     }
@@ -37,13 +37,13 @@ export async function POST(request) {
     }
 
     // Success — clear rate limit, issue JWT session cookie
-    clearRateLimit(ip)
+    await clearRateLimit(ip)
     const token = await createSession()
 
     const response = NextResponse.json({ success: true })
     response.cookies.set(SESSION_COOKIE, token, {
       httpOnly: true,       // JS can't read it — kills XSS cookie theft
-      secure: true,         // HTTPS only
+      secure: process.env.NODE_ENV === 'production',         // HTTPS only
       sameSite: 'strict',   // No CSRF
       maxAge: 60 * 60 * 12, // 12 hours
       path: '/',
