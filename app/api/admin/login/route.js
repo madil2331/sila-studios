@@ -2,10 +2,20 @@ import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { checkRateLimit, clearRateLimit, createSession, SESSION_COOKIE } from '@/lib/auth'
 
+
+function getClientIp(request) {
+  const candidates = [
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim(),
+    request.headers.get('x-real-ip')?.trim(),
+    request.headers.get('cf-connecting-ip')?.trim(),
+  ]
+  return candidates.find(Boolean) || 'unknown'
+}
+
 export async function POST(request) {
   try {
     // Get real IP (Vercel sets x-forwarded-for)
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+    const ip = getClientIp(request)
 
     // Check rate limit
     const rateCheck = await checkRateLimit(ip)
