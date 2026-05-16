@@ -177,6 +177,39 @@ This section is a running memory of what was last completed in Codex so work can
    - unauthenticated `/admin/*` redirects to `/admin`
 4. After verification, add a short dated note under **Progress updates**.
 
+### Verification runbook (copy/paste)
+Use these steps after deploy to verify the hardening end-to-end.
+
+1. Open `https://<your-domain>/admin` and confirm login page loads.
+2. Try wrong password 5 times from same IP, then confirm 6th is rate-limited (HTTP 429).
+3. Login with correct password and confirm:
+   - `sila_admin_session` cookie is set
+   - cookie is `HttpOnly`, `SameSite=Strict`, `Path=/`
+   - in production, cookie is `Secure`
+4. Logout and confirm cookie is removed.
+5. Attempt direct access to an admin API without cookie:
+   - `GET /api/admin/orders` should return `401`.
+6. With valid cookie, repeat `GET /api/admin/orders` and confirm non-401 response.
+
+Example quick checks with curl:
+```bash
+# 1) Unauthenticated should fail
+curl -i https://<your-domain>/api/admin/orders
+
+# 2) Wrong password attempt
+curl -i -X POST https://<your-domain>/api/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"password":"wrong-password"}'
+
+# 3) Successful login (save cookies)
+curl -i -c cookies.txt -X POST https://<your-domain>/api/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"password":"<correct-password>"}'
+
+# 4) Authenticated admin call using cookie jar
+curl -i -b cookies.txt https://<your-domain>/api/admin/orders
+```
+
 ### Supabase SQL for admin login rate limiting
 ```sql
 create table if not exists public.admin_login_rate_limits (
@@ -192,6 +225,7 @@ create index if not exists idx_admin_login_rate_limits_locked_until
 
 ### Progress updates
 - **2026-05-16**: Reconstructed prior Codex session focus. Current focus is backend security hardening for admin login/session/rate limiting. Next step is production env + Supabase table verification, then E2E auth checks.
+- **2026-05-16 (later)**: Added a production verification runbook with concrete E2E steps and curl commands so validation can be executed repeatably and logged after each deploy.
 
 ---
 
