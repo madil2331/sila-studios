@@ -2,14 +2,12 @@
 const WHATSAPP_NUMBER = '+92-316-3973017'
 
 const items = [
-  'New Collection — Spring 2025',
-  'Free Delivery Within Karachi',
+  'New Collection — Spring 2026',
+  'Free delivery on orders above 6000 Rs.',
   'Order Via WhatsApp',
-  'Custom Stitching Available',
-  'New Collection — Spring 2025',
-  'Free Delivery Within Karachi',
+  'New Collection — Spring 2026',
+  'Free delivery on orders above 6000 Rs.',
   'Order Via WhatsApp',
-  'Custom Stitching Available',
 ]
 
 export default function AnnouncementBar() {

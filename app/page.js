@@ -133,12 +133,12 @@ export default async function HomePage() {
           <div className="hero-text">
             <div className="hero-eyebrow">
               <span className="hero-eyebrow-line" />
-              <span className="label">New Spring Collection 2025</span>
+              <span className="label">New Spring Collection 2026</span>
             </div>
             <h1 className="hero-heading">
               <span className="line-1">New Spring</span>
               <span className="line-2">Collection</span>
-              <span className="line-3">2025</span>
+              <span className="line-3">2026</span>
             </h1>
             <p className="hero-sub">Lawn suits crafted in Karachi</p>
             <div className="hero-actions">
