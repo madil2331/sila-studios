@@ -157,6 +157,72 @@ function ImageUploader({ value, onChange }) {
   )
 }
 
+function MultiImageUploader({ onUploaded }) {
+  const inputRef = useRef()
+  const [uploading, setUploading] = useState(false)
+
+  async function handleFiles(fileList) {
+    const files = Array.from(fileList || [])
+    if (!files.length) return
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    for (const file of files) {
+      if (!validTypes.includes(file.type)) {
+        alert(`"${file.name}" is not supported. Only JPG, PNG or WebP allowed.`)
+        return
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`"${file.name}" exceeds 5MB. Please compress and try again.`)
+        return
+      }
+    }
+
+    setUploading(true)
+    const uploadedUrls = []
+
+    try {
+      for (const file of files) {
+        const fd = new FormData()
+        fd.append('file', file)
+        const res = await adminFetch('/api/admin/upload', { method: 'POST', body: fd })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || `Upload failed for ${file.name}`)
+        if (data.url) uploadedUrls.push(data.url)
+      }
+      if (uploadedUrls.length) onUploaded(uploadedUrls)
+    } catch (err) {
+      alert(err.message || 'Upload failed — check your connection')
+    }
+
+    setUploading(false)
+  }
+
+  return (
+    <div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        multiple
+        style={{ display: 'none' }}
+        onChange={e => handleFiles(e.target.files)}
+      />
+      <button
+        type="button"
+        className="admin-btn admin-btn-outline"
+        disabled={uploading}
+        onClick={() => inputRef.current?.click()}
+        style={{ width: '100%', justifyContent: 'center' }}
+      >
+        {uploading ? 'Uploading gallery...' : 'Upload Multiple Gallery Images'}
+      </button>
+      <p style={{ margin: '10px 0 0', color: '#3A3830', fontSize: 12, lineHeight: 1.6 }}>
+        Select multiple JPG/PNG/WebP files (max 5MB each). Uploaded URLs will be appended automatically.
+      </p>
+    </div>
+  )
+}
+
 export default function ProductsPage() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -425,14 +491,21 @@ export default function ProductsPage() {
 
             <div className="admin-form-group" style={{ marginTop: 16 }}>
               <label className="admin-form-label">Gallery media URLs (one per line)</label>
+              <MultiImageUploader
+                onUploaded={(urls) => setForm(prev => ({
+                  ...prev,
+                  media_urls: [...(prev.media_urls || []), ...urls],
+                }))}
+              />
               <textarea
                 className="admin-form-textarea"
+                style={{ marginTop: 12 }}
                 value={(form.media_urls || []).join('\n')}
                 onChange={e => setForm({ ...form, media_urls: e.target.value.split('\n').map(s => s.trim()).filter(Boolean) })}
                 placeholder="Paste additional image/video URLs (Supabase Storage public URLs)."
               />
               <p style={{ margin: '10px 0 0', color: '#3A3830', fontSize: 12, lineHeight: 1.6 }}>
-                Upload UI for multiple files requires extra Supabase columns + an upload endpoint; for now you can paste URLs.
+                You can still paste external URLs here (one per line) if you host gallery images outside Supabase.
               </p>
             </div>
 
