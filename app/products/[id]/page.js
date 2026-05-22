@@ -6,6 +6,11 @@ import { unstable_noStore as noStore } from 'next/cache'
 export const dynamic = 'force-dynamic'
 
 const PRICE_LOCALE = 'en-US'
+const SIZE_CHART_IN = [
+  { size: 'Small', chest: 19, waist: 20, hips: 23 },
+  { size: 'Medium', chest: 20.5, waist: 22, hips: 24 },
+  { size: 'Large', chest: 22, waist: 23, hips: 25 },
+]
 
 async function getProduct(id) {
   noStore()
@@ -121,8 +126,30 @@ export default async function ProductDetailPage({ params }) {
 
           <div style={{ marginTop: 34, padding: 18, borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
             <p className="label" style={{ marginBottom: 10 }}>Size Guide</p>
-            <p style={{ margin: 0, color: 'var(--muted)', fontSize: 13, lineHeight: 1.8 }}>
-              Share your size on WhatsApp (e.g. Small/Medium/Large) and any measurements you prefer. We’ll confirm fitting and availability before dispatch.
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 360 }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '1px solid rgba(255,255,255,0.12)', color: 'var(--cream)' }}>Size</th>
+                    <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '1px solid rgba(255,255,255,0.12)', color: 'var(--cream)' }}>Chest (in)</th>
+                    <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '1px solid rgba(255,255,255,0.12)', color: 'var(--cream)' }}>Waist (in)</th>
+                    <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '1px solid rgba(255,255,255,0.12)', color: 'var(--cream)' }}>Hips (in)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {SIZE_CHART_IN.map((row) => (
+                    <tr key={row.size}>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid rgba(255,255,255,0.08)', color: 'var(--gold)' }}>{row.size}</td>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid rgba(255,255,255,0.08)', color: 'var(--muted)' }}>{row.chest}</td>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid rgba(255,255,255,0.08)', color: 'var(--muted)' }}>{row.waist}</td>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid rgba(255,255,255,0.08)', color: 'var(--muted)' }}>{row.hips}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p style={{ margin: '10px 0 0', color: 'var(--muted)', fontSize: 12, lineHeight: 1.7 }}>
+              Measurements are in inches and may vary slightly by fabric/cut (about ±0.5 in). If you prefer exact fit guidance, message us on WhatsApp before ordering.
             </p>
           </div>
         </div>
@@ -136,4 +163,3 @@ export default async function ProductDetailPage({ params }) {
     </div>
   )
 }
-
