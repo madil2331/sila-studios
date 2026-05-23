@@ -515,6 +515,9 @@ export default function ProductsPage() {
             <div className="admin-form-group" style={{ marginTop: 16 }}>
               <label className="admin-form-label">Description</label>
               <textarea className="admin-form-textarea" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Brief description of the piece..." />
+              <p style={{ margin: '8px 0 0', color: '#3A3830', fontSize: 12, lineHeight: 1.6 }}>
+                Formatting supported: <strong>**bold**</strong>, <em>*italic*</em>, bullets with <code>- item</code>.
+              </p>
             </div>
 
             <div className="admin-form-group" style={{ marginTop: 16 }}>
@@ -525,6 +528,9 @@ export default function ProductsPage() {
                 onChange={e => setForm({ ...form, product_note: e.target.value })}
                 placeholder="e.g. Color may vary slightly due to studio lighting. Dry clean only."
               />
+              <p style={{ margin: '8px 0 0', color: '#3A3830', fontSize: 12, lineHeight: 1.6 }}>
+                You can format notices with <strong>**bold**</strong>, <em>*italic*</em>, and bullet points using <code>-</code>.
+              </p>
             </div>
 
             <div className="admin-form-group" style={{ marginTop: 16 }}>

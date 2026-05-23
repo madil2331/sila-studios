@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react'
 export default function ProductGallery({ images, productName }) {
   const safeImages = useMemo(() => (Array.isArray(images) ? images.filter(Boolean) : []), [images])
   const [activeIndex, setActiveIndex] = useState(0)
+  const [zoom, setZoom] = useState({ active: false, x: 50, y: 50 })
 
   const hasImages = safeImages.length > 0
   const activeImage = hasImages ? safeImages[activeIndex] : null
@@ -19,12 +20,36 @@ export default function ProductGallery({ images, productName }) {
     setActiveIndex((prev) => (prev + 1) % safeImages.length)
   }
 
+  function onMove(e) {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width) * 100
+    const y = ((e.clientY - rect.top) / rect.height) * 100
+    setZoom({ active: true, x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) })
+  }
+
   return (
     <div>
-      <div style={{ position: 'relative', width: '100%', aspectRatio: '3/4', borderRadius: 10, overflow: 'hidden', background: '#0F0F0D', border: '1px solid rgba(255,255,255,0.06)' }}>
+      <div
+        onMouseMove={onMove}
+        onMouseEnter={() => setZoom((prev) => ({ ...prev, active: true }))}
+        onMouseLeave={() => setZoom({ active: false, x: 50, y: 50 })}
+        style={{ position: 'relative', width: '100%', aspectRatio: '3/4', borderRadius: 10, overflow: 'hidden', background: '#0F0F0D', border: '1px solid rgba(255,255,255,0.06)' }}
+      >
         {activeImage ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={activeImage} alt={productName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img
+            src={activeImage}
+            alt={productName}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              transform: zoom.active ? 'scale(1.9)' : 'scale(1)',
+              transformOrigin: `${zoom.x}% ${zoom.y}%`,
+              transition: zoom.active ? 'transform 0.08s linear' : 'transform 0.2s ease',
+              cursor: zoom.active ? 'zoom-out' : 'zoom-in',
+            }}
+          />
         ) : (
           <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)' }}>
             Photo coming soon

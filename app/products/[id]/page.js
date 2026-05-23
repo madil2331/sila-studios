@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { unstable_noStore as noStore } from 'next/cache'
 import ProductGallery from '../../../components/ProductGallery'
 import { unpackDescriptionAndNote } from '@/lib/product-note'
+import RichTextBlock from '@/components/RichTextBlock'
 
 export const dynamic = 'force-dynamic'
 
@@ -89,9 +90,7 @@ export default async function ProductDetailPage({ params }) {
           </p>
 
           {normalizedContent.description ? (
-            <p className="body-lg" style={{ color: 'var(--muted)', lineHeight: 1.75 }}>
-              {normalizedContent.description}
-            </p>
+            <RichTextBlock className="body-lg" style={{ color: 'var(--muted)', lineHeight: 1.75 }} value={normalizedContent.description} />
           ) : (
             <p className="body-lg" style={{ color: 'var(--muted)' }}>
               Details coming soon. For sizing and availability, message us on WhatsApp.
@@ -139,9 +138,7 @@ export default async function ProductDetailPage({ params }) {
           {normalizedContent.product_note ? (
             <div style={{ marginTop: 14, padding: 16, borderRadius: 10, border: '1px solid rgba(196,164,98,0.28)', background: 'rgba(196,164,98,0.08)' }}>
               <p className="label" style={{ marginBottom: 8, color: 'var(--gold)' }}>Important Notice</p>
-              <p style={{ margin: 0, color: 'var(--muted)', lineHeight: 1.7, whiteSpace: 'pre-line' }}>
-                {normalizedContent.product_note}
-              </p>
+              <RichTextBlock style={{ margin: 0, color: 'var(--muted)', lineHeight: 1.7 }} value={normalizedContent.product_note} />
             </div>
           ) : null}
         </div>
