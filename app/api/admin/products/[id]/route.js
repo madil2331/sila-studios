@@ -69,8 +69,9 @@ export async function PUT(request, { params }) {
   }
 
   const db = getSupabaseAdmin()
-  const fallbackPayload = { ...basePayload, description: packDescriptionAndNote(description, product_note) }
-  const fallbackWithoutNoteColumn = { ...richPayload }
+  const packedDescription = packDescriptionAndNote(description, product_note)
+  const fallbackPayload = { ...basePayload, description: packedDescription }
+  const fallbackWithoutNoteColumn = { ...richPayload, description: packedDescription }
   delete fallbackWithoutNoteColumn.product_note
 
   const payloads = [richPayload, fallbackWithoutNoteColumn, fallbackPayload]

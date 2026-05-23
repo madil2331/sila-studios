@@ -74,8 +74,9 @@ export async function POST(request) {
     product_note: product_note || null,
   }
 
-  const fallbackPayload = { ...basePayload, description: packDescriptionAndNote(description, product_note) }
-  const fallbackWithoutNoteColumn = { ...richPayload }
+  const packedDescription = packDescriptionAndNote(description, product_note)
+  const fallbackPayload = { ...basePayload, description: packedDescription }
+  const fallbackWithoutNoteColumn = { ...richPayload, description: packedDescription }
   delete fallbackWithoutNoteColumn.product_note
 
   const payloads = [richPayload, fallbackWithoutNoteColumn, fallbackPayload]
