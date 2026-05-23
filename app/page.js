@@ -150,7 +150,7 @@ export default async function HomePage() {
               </a>
             </div>
             <div className="hero-trust">
-              <span className="hero-trust-note">Free delivery in Karachi</span>
+              <span className="hero-trust-note">Free delivery on orders above Rs. 6,000.</span>
               <div className="hero-trust-badges">
                 <span className="hero-trust-badge">Premium Fabrics Only</span>
               </div>

@@ -2,12 +2,9 @@
 const WHATSAPP_NUMBER = '+92-316-3973017'
 
 const items = [
-  'New Collection — Spring 2026',
-  'Free delivery on orders above 6000 Rs.',
-  'Order Via WhatsApp',
-  'New Collection — Spring 2026',
-  'Free delivery on orders above 6000 Rs.',
-  'Order Via WhatsApp',
+  'Free delivery on orders above Rs. 6,000.',
+  'Free delivery on orders above Rs. 6,000.',
+  'Free delivery on orders above Rs. 6,000.',
 ]
 
 export default function AnnouncementBar() {
