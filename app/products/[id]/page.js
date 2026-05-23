@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
 import { unstable_noStore as noStore } from 'next/cache'
 import ProductGallery from '../../../components/ProductGallery'
+import { unpackDescriptionAndNote } from '@/lib/product-note'
 
 export const dynamic = 'force-dynamic'
 
@@ -50,6 +51,8 @@ export default async function ProductDetailPage({ params }) {
     )
   }
 
+  const normalizedContent = unpackDescriptionAndNote(product.description, product.product_note)
+
   const basePrice = Number(product.price || 0)
   const discounted = product.discount_price != null ? Number(product.discount_price) : null
   const compareAt = product.compare_at_price != null ? Number(product.compare_at_price) : null
@@ -85,9 +88,9 @@ export default async function ProductDetailPage({ params }) {
             {product.badge ? <span style={{ color: 'var(--muted)', fontSize: 12 }}> · {product.badge}</span> : null}
           </p>
 
-          {product.description ? (
+          {normalizedContent.description ? (
             <p className="body-lg" style={{ color: 'var(--muted)', lineHeight: 1.75 }}>
-              {product.description}
+              {normalizedContent.description}
             </p>
           ) : (
             <p className="body-lg" style={{ color: 'var(--muted)' }}>
@@ -133,11 +136,11 @@ export default async function ProductDetailPage({ params }) {
             </p>
           </div>
 
-          {product.product_note ? (
+          {normalizedContent.product_note ? (
             <div style={{ marginTop: 14, padding: 16, borderRadius: 10, border: '1px solid rgba(196,164,98,0.28)', background: 'rgba(196,164,98,0.08)' }}>
               <p className="label" style={{ marginBottom: 8, color: 'var(--gold)' }}>Important Notice</p>
               <p style={{ margin: 0, color: 'var(--muted)', lineHeight: 1.7, whiteSpace: 'pre-line' }}>
-                {product.product_note}
+                {normalizedContent.product_note}
               </p>
             </div>
           ) : null}

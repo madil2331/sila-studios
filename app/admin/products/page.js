@@ -233,6 +233,7 @@ export default function ProductsPage() {
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [collections, setCollections] = useState(CATEGORIES)
 
   async function load() {
     setLoading(true)
@@ -243,6 +244,11 @@ export default function ProductsPage() {
   }
 
   useEffect(() => { load() }, [])
+
+  useEffect(() => {
+    const productCollections = Array.from(new Set((products || []).map(p => (p.category || '').trim()).filter(Boolean)))
+    setCollections(Array.from(new Set([...CATEGORIES, ...productCollections])))
+  }, [products])
 
   function openAdd() { setForm(EMPTY_FORM); setEditId(null); setModal('add') }
   function openEdit(p) {
@@ -308,16 +314,27 @@ export default function ProductsPage() {
     load()
   }
 
+  function addCollection() {
+    const value = window.prompt('Enter new collection name (e.g. 2-Piece)')
+    const name = String(value || '').trim()
+    if (!name) return
+    setCollections(prev => (prev.includes(name) ? prev : [...prev, name]))
+    setForm(prev => ({ ...prev, category: name }))
+  }
+
   return (
     <div className="admin-shell">
       <AdminSidebar />
       <div className="admin-main">
         <div className="admin-topbar">
           <span className="admin-page-title">Products</span>
-          <button className="admin-btn admin-btn-gold" onClick={openAdd}>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button className="admin-btn admin-btn-outline" onClick={addCollection}>Add Collection</button>
+            <button className="admin-btn admin-btn-gold" onClick={openAdd}>
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Add Product
-          </button>
+            </button>
+          </div>
         </div>
 
         <div className="admin-content">
@@ -450,7 +467,7 @@ export default function ProductsPage() {
                       placeholder="e.g. 2-Piece, Formal Shirt, Trouser"
                     />
                     <datalist id="product-collections">
-                      {CATEGORIES.map(c => <option key={c} value={c} />)}
+                      {collections.map(c => <option key={c} value={c} />)}
                     </datalist>
                     <p style={{ margin: '8px 0 0', color: '#3A3830', fontSize: 12, lineHeight: 1.6 }}>
                       You can type any custom collection name you want.

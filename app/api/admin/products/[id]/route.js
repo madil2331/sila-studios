@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getSessionFromCookies } from '@/lib/auth'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { resolveRouteParams } from '@/lib/route-params'
+import { packDescriptionAndNote } from '@/lib/product-note'
 
 const NO_STORE = { 'Cache-Control': 'no-store, must-revalidate' }
 
@@ -70,7 +71,8 @@ export async function PUT(request, { params }) {
   const db = getSupabaseAdmin()
   let update = await db.from('products').update(richPayload).eq('id', id).select().single()
   if (update.error) {
-    update = await db.from('products').update(basePayload).eq('id', id).select().single()
+    const fallbackPayload = { ...basePayload, description: packDescriptionAndNote(description, product_note) }
+    update = await db.from('products').update(fallbackPayload).eq('id', id).select().single()
   }
 
   if (update.error) return NextResponse.json({ error: update.error.message }, { status: 500 })

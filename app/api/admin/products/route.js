@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSessionFromCookies } from '@/lib/auth'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
+import { packDescriptionAndNote, unpackDescriptionAndNote } from '@/lib/product-note'
 
 const NO_STORE = { 'Cache-Control': 'no-store, must-revalidate' }
 
@@ -21,7 +22,8 @@ export async function GET() {
     .order('created_at', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+  const normalized = (data || []).map((item) => ({ ...item, ...unpackDescriptionAndNote(item.description, item.product_note) }))
+  return NextResponse.json(normalized)
 }
 
 export async function POST(request) {
@@ -75,7 +77,8 @@ export async function POST(request) {
   let insert = await db.from('products').insert([richPayload]).select().single()
   if (insert.error) {
     // If schema doesn't have some columns yet (e.g. handle/media), retry smaller payloads.
-    const withoutRich = await db.from('products').insert([basePayload]).select().single()
+    const fallbackPayload = { ...basePayload, description: packDescriptionAndNote(description, product_note) }
+    const withoutRich = await db.from('products').insert([fallbackPayload]).select().single()
     if (!withoutRich.error) insert = withoutRich
     else {
       const minimal = {
