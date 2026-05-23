@@ -69,10 +69,16 @@ export async function PUT(request, { params }) {
   }
 
   const db = getSupabaseAdmin()
-  let update = await db.from('products').update(richPayload).eq('id', id).select().single()
-  if (update.error) {
-    const fallbackPayload = { ...basePayload, description: packDescriptionAndNote(description, product_note) }
-    update = await db.from('products').update(fallbackPayload).eq('id', id).select().single()
+  const fallbackPayload = { ...basePayload, description: packDescriptionAndNote(description, product_note) }
+  const fallbackWithoutNoteColumn = { ...richPayload }
+  delete fallbackWithoutNoteColumn.product_note
+
+  const payloads = [richPayload, fallbackWithoutNoteColumn, fallbackPayload]
+  let update = null
+
+  for (const payload of payloads) {
+    update = await db.from('products').update(payload).eq('id', id).select().single()
+    if (!update.error) break
   }
 
   if (update.error) return NextResponse.json({ error: update.error.message }, { status: 500 })

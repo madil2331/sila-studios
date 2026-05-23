@@ -74,21 +74,27 @@ export async function POST(request) {
     product_note: product_note || null,
   }
 
-  let insert = await db.from('products').insert([richPayload]).select().single()
-  if (insert.error) {
-    // If schema doesn't have some columns yet (e.g. handle/media), retry smaller payloads.
-    const fallbackPayload = { ...basePayload, description: packDescriptionAndNote(description, product_note) }
-    const withoutRich = await db.from('products').insert([fallbackPayload]).select().single()
-    if (!withoutRich.error) insert = withoutRich
-    else {
-      const minimal = {
-        name,
-        price: parseInt(price),
-        in_stock: in_stock ?? true,
-        image_url: image_url || null,
-      }
-      insert = await db.from('products').insert([minimal]).select().single()
+  const fallbackPayload = { ...basePayload, description: packDescriptionAndNote(description, product_note) }
+  const fallbackWithoutNoteColumn = { ...richPayload }
+  delete fallbackWithoutNoteColumn.product_note
+
+  const payloads = [richPayload, fallbackWithoutNoteColumn, fallbackPayload]
+
+  let insert = null
+  for (const payload of payloads) {
+    insert = await db.from('products').insert([payload]).select().single()
+    if (!insert.error) break
+  }
+
+  if (insert?.error) {
+    const minimal = {
+      name,
+      price: parseInt(price),
+      in_stock: in_stock ?? true,
+      image_url: image_url || null,
+      description: packDescriptionAndNote(description, product_note),
     }
+    insert = await db.from('products').insert([minimal]).select().single()
   }
 
   if (insert.error) return NextResponse.json({ error: insert.error.message }, { status: 500 })
