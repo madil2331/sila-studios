@@ -132,6 +132,15 @@ export default async function ProductDetailPage({ params }) {
               Measurements are in inches and may vary slightly by fabric/cut (about ±0.5 in). If you prefer exact fit guidance, message us on WhatsApp before ordering.
             </p>
           </div>
+
+          {product.product_note ? (
+            <div style={{ marginTop: 14, padding: 16, borderRadius: 10, border: '1px solid rgba(196,164,98,0.28)', background: 'rgba(196,164,98,0.08)' }}>
+              <p className="label" style={{ marginBottom: 8, color: 'var(--gold)' }}>Important Notice</p>
+              <p style={{ margin: 0, color: 'var(--muted)', lineHeight: 1.7, whiteSpace: 'pre-line' }}>
+                {product.product_note}
+              </p>
+            </div>
+          ) : null}
         </div>
       </div>
 

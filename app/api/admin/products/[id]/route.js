@@ -38,6 +38,7 @@ export async function PUT(request, { params }) {
     available_colors,
     compare_at_price,
     discount_price,
+    product_note,
   } = body
 
   const parsedPrice = parsePrice(price)
@@ -63,6 +64,7 @@ export async function PUT(request, { params }) {
     available_colors: available_colors === undefined ? undefined : (available_colors || null),
     compare_at_price: compare_at_price === undefined ? undefined : (compare_at_price ?? null),
     discount_price: discount_price === undefined ? undefined : (discount_price ?? null),
+    product_note: product_note === undefined ? undefined : (product_note || null),
   }
 
   const db = getSupabaseAdmin()

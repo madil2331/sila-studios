@@ -43,6 +43,7 @@ export async function POST(request) {
     available_colors,
     compare_at_price,
     discount_price,
+    product_note,
   } = body
 
   if (!name || !price) {
@@ -68,6 +69,7 @@ export async function POST(request) {
     available_colors: available_colors || null,
     compare_at_price: compare_at_price ?? null,
     discount_price: discount_price ?? null,
+    product_note: product_note || null,
   }
 
   let insert = await db.from('products').insert([richPayload]).select().single()

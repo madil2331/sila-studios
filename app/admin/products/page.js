@@ -21,6 +21,7 @@ const EMPTY_FORM = {
   available_colors: '',
   compare_at_price: '',
   discount_price: '',
+  product_note: '',
 }
 
 function slugify(input) {
@@ -260,6 +261,7 @@ export default function ProductsPage() {
       available_colors: p.available_colors || '',
       compare_at_price: p.compare_at_price != null ? String(p.compare_at_price) : '',
       discount_price: p.discount_price != null ? String(p.discount_price) : '',
+      product_note: p.product_note || '',
     })
     setEditId(p.id)
     setModal('edit')
@@ -439,11 +441,20 @@ export default function ProductsPage() {
                     <input className="admin-form-input" type="number" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} placeholder="3500" />
                   </div>
                   <div className="admin-form-group">
-                    <label className="admin-form-label">Category</label>
-                    <select className="admin-form-select" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
-                      <option value="">Select category</option>
-                      {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
+                    <label className="admin-form-label">Collection</label>
+                    <input
+                      className="admin-form-input"
+                      list="product-collections"
+                      value={form.category}
+                      onChange={e => setForm({ ...form, category: e.target.value })}
+                      placeholder="e.g. 2-Piece, Formal Shirt, Trouser"
+                    />
+                    <datalist id="product-collections">
+                      {CATEGORIES.map(c => <option key={c} value={c} />)}
+                    </datalist>
+                    <p style={{ margin: '8px 0 0', color: '#3A3830', fontSize: 12, lineHeight: 1.6 }}>
+                      You can type any custom collection name you want.
+                    </p>
                   </div>
                 </div>
                 <div className="admin-form-row">
@@ -487,6 +498,16 @@ export default function ProductsPage() {
             <div className="admin-form-group" style={{ marginTop: 16 }}>
               <label className="admin-form-label">Description</label>
               <textarea className="admin-form-textarea" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Brief description of the piece..." />
+            </div>
+
+            <div className="admin-form-group" style={{ marginTop: 16 }}>
+              <label className="admin-form-label">Disclaimer / Important Notice / Instruction</label>
+              <textarea
+                className="admin-form-textarea"
+                value={form.product_note}
+                onChange={e => setForm({ ...form, product_note: e.target.value })}
+                placeholder="e.g. Color may vary slightly due to studio lighting. Dry clean only."
+              />
             </div>
 
             <div className="admin-form-group" style={{ marginTop: 16 }}>
