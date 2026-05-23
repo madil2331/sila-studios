@@ -2,10 +2,8 @@
 
 import { useEffect, useState, useRef } from 'react'
 import AdminSidebar from '@/components/AdminSidebar'
-import { PRODUCT_CATEGORIES } from '@/lib/product-categories'
 import { adminFetch } from '@/lib/admin-fetch'
 
-const CATEGORIES = PRODUCT_CATEGORIES
 const BADGES = ['', 'New', 'Bestseller', 'Premium', 'Sale']
 const EMPTY_FORM = {
   name: '',
@@ -233,7 +231,7 @@ export default function ProductsPage() {
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
-  const [collections, setCollections] = useState(CATEGORIES)
+  const [collections, setCollections] = useState([])
 
   async function load() {
     setLoading(true)
@@ -247,7 +245,7 @@ export default function ProductsPage() {
 
   useEffect(() => {
     const productCollections = Array.from(new Set((products || []).map(p => (p.category || '').trim()).filter(Boolean)))
-    setCollections(Array.from(new Set([...CATEGORIES, ...productCollections])))
+    setCollections(productCollections)
   }, [products])
 
   function openAdd() { setForm(EMPTY_FORM); setEditId(null); setModal('add') }

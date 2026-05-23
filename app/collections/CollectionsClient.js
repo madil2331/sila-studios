@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { PRODUCT_CATEGORIES } from '@/lib/product-categories'
 import { getWhatsAppLink } from '@/lib/whatsapp'
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '03163973017'
@@ -66,7 +65,8 @@ function ProductCard({ product }) {
 export default function CollectionsClient({ products }) {
   const [filter, setFilter] = useState('All')
 
-  const filters = ['All', ...PRODUCT_CATEGORIES]
+  const activeCategories = Array.from(new Set((products || []).map((p) => (p.category || '').trim()).filter(Boolean)))
+  const filters = ['All', ...activeCategories]
   const filtered = filter === 'All' ? products : products.filter(p => p.category === filter)
 
   return (
@@ -80,7 +80,7 @@ export default function CollectionsClient({ products }) {
         </p>
       </div>
 
-      {/* Filter bar — same labels as admin; empty categories show “No products” message */}
+      {/* Filter bar — show only collections that currently have products */}
       {products.length > 0 && (
         <div className="filter-bar">
           {filters.map(cat => (
@@ -107,11 +107,6 @@ export default function CollectionsClient({ products }) {
         </div>
       )}
 
-      {filtered.length === 0 && products.length > 0 && (
-        <div style={{ textAlign: 'center', padding: '64px 0', color: 'var(--muted)' }}>
-          <p>No products in this category yet.</p>
-        </div>
-      )}
     </div>
   )
 }

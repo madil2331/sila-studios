@@ -77,6 +77,7 @@ export default function OrderClient() {
         return
       }
       setSuccess({ order_id: data.order_id, order_number: data.order_number, waLink: data.waLink })
+      if (data.waLink) window.open(data.waLink, '_blank', 'noopener,noreferrer')
     } catch {
       setError('Network error. Please try again.')
     }
@@ -120,11 +121,11 @@ export default function OrderClient() {
         <p className="label" style={{ marginBottom: 16 }}>Order Placed</p>
         <h1 className="display-md" style={{ marginBottom: 12 }}>Thank you!</h1>
         <p className="body-lg" style={{ maxWidth: 640, margin: '0 auto', color: 'var(--muted)' }}>
-          Your order has been created. Your order number is <strong style={{ color: 'var(--charcoal)' }}>{ord || parseOrderNumber('') || success.order_id}</strong>.
+          Your order has been placed successfully. A WhatsApp confirmation draft has been opened. Your order number is <strong style={{ color: 'var(--charcoal)' }}>{ord || parseOrderNumber('') || success.order_id}</strong>.
         </p>
         <div style={{ marginTop: 26, display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
           <a className="btn-whatsapp" href={success.waLink} target="_blank" rel="noopener noreferrer">
-            Confirm via WhatsApp →
+            Open WhatsApp Again →
           </a>
           <button className="btn-outline" onClick={() => router.push(`/track?id=${encodeURIComponent(success.order_id)}`)}>
             Track Order
