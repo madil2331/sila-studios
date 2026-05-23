@@ -1,7 +1,7 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
 import { unstable_noStore as noStore } from 'next/cache'
+import ProductGallery from '../../../components/ProductGallery'
 
 export const dynamic = 'force-dynamic'
 
@@ -69,27 +69,7 @@ export default async function ProductDetailPage({ params }) {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.05fr 0.95fr', gap: 42, alignItems: 'start' }}>
         <div>
-          <div style={{ position: 'relative', width: '100%', aspectRatio: '3/4', borderRadius: 10, overflow: 'hidden', background: '#0F0F0D', border: '1px solid rgba(255,255,255,0.06)' }}>
-            {images[0] ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={images[0]} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)' }}>
-                Photo coming soon
-              </div>
-            )}
-          </div>
-
-          {images.length > 1 && (
-            <div style={{ marginTop: 14, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              {images.slice(0, 6).map((url, idx) => (
-                <div key={url + idx} style={{ width: 76, height: 98, borderRadius: 8, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)', background: '#0F0F0D' }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={url} alt={`${product.name} ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </div>
-              ))}
-            </div>
-          )}
+          <ProductGallery images={images} productName={product.name} />
         </div>
 
         <div>
