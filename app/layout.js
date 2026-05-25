@@ -34,6 +34,9 @@ export const metadata = {
   },
     images: ['/sila_banner.png'],
   },
+  verification: {
+    google: '7e2fQBln2H9bWUl83TyOLhl_6EY--VQ-_q9XYppbjjU',
+  },
   icons: {
     icon: '/logo_social.png',
     shortcut: '/logo_social.png',
