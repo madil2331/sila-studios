@@ -46,6 +46,14 @@ export async function POST(request) {
     compare_at_price,
     discount_price,
     product_note,
+    short_description,
+    long_description,
+    sku,
+    status,
+    tags,
+    meta_title,
+    meta_description,
+    inventory_count,
   } = body
 
   if (!name || !price) {
@@ -62,6 +70,14 @@ export async function POST(request) {
     badge,
     in_stock: in_stock ?? true,
     image_url: image_url || null,
+    short_description: short_description || null,
+    long_description: long_description || null,
+    sku: sku || null,
+    status: status || 'published',
+    tags: Array.isArray(tags) ? tags : (tags ? [tags] : null),
+    meta_title: meta_title || null,
+    meta_description: meta_description || null,
+    inventory_count: inventory_count ?? null,
   }
 
   const richPayload = {
@@ -93,6 +109,14 @@ export async function POST(request) {
       price: parseInt(price),
       in_stock: in_stock ?? true,
       image_url: image_url || null,
+    short_description: short_description || null,
+    long_description: long_description || null,
+    sku: sku || null,
+    status: status || 'published',
+    tags: Array.isArray(tags) ? tags : (tags ? [tags] : null),
+    meta_title: meta_title || null,
+    meta_description: meta_description || null,
+    inventory_count: inventory_count ?? null,
       description: packDescriptionAndNote(description, product_note),
     }
     insert = await db.from('products').insert([minimal]).select().single()

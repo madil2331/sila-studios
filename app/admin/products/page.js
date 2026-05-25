@@ -10,6 +10,8 @@ const EMPTY_FORM = {
   handle: '',
   price: '',
   category: '',
+  short_description: '',
+  long_description: '',
   description: '',
   badge: '',
   in_stock: true,
@@ -20,6 +22,12 @@ const EMPTY_FORM = {
   compare_at_price: '',
   discount_price: '',
   product_note: '',
+  sku: '',
+  status: 'published',
+  tags: '',
+  meta_title: '',
+  meta_description: '',
+  inventory_count: '',
 }
 
 function slugify(input) {
@@ -256,6 +264,8 @@ export default function ProductsPage() {
       handle: p.handle || '',
       price: priceStr,
       category: p.category || '',
+      short_description: p.short_description || '',
+      long_description: p.long_description || '',
       description: p.description || '',
       badge: p.badge || '',
       in_stock: p.in_stock ?? true,
@@ -266,6 +276,12 @@ export default function ProductsPage() {
       compare_at_price: p.compare_at_price != null ? String(p.compare_at_price) : '',
       discount_price: p.discount_price != null ? String(p.discount_price) : '',
       product_note: p.product_note || '',
+      sku: p.sku || '',
+      status: p.status || 'published',
+      tags: Array.isArray(p.tags) ? p.tags.join(', ') : (p.tags || ''),
+      meta_title: p.meta_title || '',
+      meta_description: p.meta_description || '',
+      inventory_count: p.inventory_count != null ? String(p.inventory_count) : '',
     })
     setEditId(p.id)
     setModal('edit')
@@ -285,6 +301,8 @@ export default function ProductsPage() {
           // Normalize numeric fields
           compare_at_price: form.compare_at_price === '' ? null : Number(form.compare_at_price),
           discount_price: form.discount_price === '' ? null : Number(form.discount_price),
+          tags: form.tags ? form.tags.split(',').map(s => s.trim()).filter(Boolean) : [],
+          inventory_count: form.inventory_count === '' ? null : Number(form.inventory_count),
         }),
       })
       if (res.ok) {
@@ -450,6 +468,20 @@ export default function ProductsPage() {
                     This controls the product URL (e.g. <span style={{ color: '#C4A462' }}>/products/your-handle</span>). Keep it short and consistent.
                   </p>
                 </div>
+
+                <div className="admin-form-row">
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">SKU</label>
+                    <input className="admin-form-input" value={form.sku} onChange={e => setForm({ ...form, sku: e.target.value })} placeholder="e.g. SILA-001" />
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Status</label>
+                    <select className="admin-form-select" value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+                      <option value="published">Published</option>
+                      <option value="draft">Draft</option>
+                    </select>
+                  </div>
+                </div>
                 <div className="admin-form-row">
                   <div className="admin-form-group">
                     <label className="admin-form-label">Price (Rs.) *</label>
@@ -511,7 +543,17 @@ export default function ProductsPage() {
             </div>
 
             <div className="admin-form-group" style={{ marginTop: 16 }}>
-              <label className="admin-form-label">Description</label>
+              <label className="admin-form-label">Short Description</label>
+              <textarea className="admin-form-textarea" value={form.short_description} onChange={e => setForm({ ...form, short_description: e.target.value })} placeholder="Short summary shown near title/price..." />
+            </div>
+
+            <div className="admin-form-group" style={{ marginTop: 16 }}>
+              <label className="admin-form-label">Long Description</label>
+              <textarea className="admin-form-textarea" value={form.long_description} onChange={e => setForm({ ...form, long_description: e.target.value })} placeholder="Detailed product description..." />
+            </div>
+
+            <div className="admin-form-group" style={{ marginTop: 16 }}>
+              <label className="admin-form-label">Legacy Description (optional)</label>
               <textarea className="admin-form-textarea" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Brief description of the piece..." />
               <p style={{ margin: '8px 0 0', color: '#3A3830', fontSize: 12, lineHeight: 1.6 }}>
                 Formatting supported: <strong>**bold**</strong>, <em>*italic*</em>, bullets with <code>- item</code>.
@@ -551,6 +593,25 @@ export default function ProductsPage() {
               </p>
             </div>
 
+
+            <div className="admin-form-row" style={{ marginTop: 16 }}>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Tags (comma-separated)</label>
+                <input className="admin-form-input" value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} placeholder="summer, lawn, formal" />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Inventory Count</label>
+                <input className="admin-form-input" type="number" value={form.inventory_count} onChange={e => setForm({ ...form, inventory_count: e.target.value })} placeholder="0" />
+              </div>
+            </div>
+            <div className="admin-form-group" style={{ marginTop: 16 }}>
+              <label className="admin-form-label">Meta Title</label>
+              <input className="admin-form-input" value={form.meta_title} onChange={e => setForm({ ...form, meta_title: e.target.value })} placeholder="SEO title for search results" />
+            </div>
+            <div className="admin-form-group" style={{ marginTop: 16 }}>
+              <label className="admin-form-label">Meta Description</label>
+              <textarea className="admin-form-textarea" value={form.meta_description} onChange={e => setForm({ ...form, meta_description: e.target.value })} placeholder="SEO meta description" />
+            </div>
             <div className="admin-modal-actions">
               <button className="admin-btn admin-btn-outline" onClick={closeModal}>Cancel</button>
               <button className="admin-btn admin-btn-gold" onClick={handleSave} disabled={saving || !form.name || !form.price}>

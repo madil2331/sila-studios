@@ -40,6 +40,14 @@ export async function PUT(request, { params }) {
     compare_at_price,
     discount_price,
     product_note,
+    short_description,
+    long_description,
+    sku,
+    status,
+    tags,
+    meta_title,
+    meta_description,
+    inventory_count,
   } = body
 
   const parsedPrice = parsePrice(price)
@@ -57,6 +65,14 @@ export async function PUT(request, { params }) {
     in_stock,
   }
   if (image_url !== undefined) basePayload.image_url = image_url || null
+  basePayload.short_description = short_description === undefined ? undefined : (short_description || null)
+  basePayload.long_description = long_description === undefined ? undefined : (long_description || null)
+  basePayload.sku = sku === undefined ? undefined : (sku || null)
+  basePayload.status = status === undefined ? undefined : (status || 'published')
+  basePayload.tags = tags === undefined ? undefined : (Array.isArray(tags) ? tags : (tags ? [tags] : null))
+  basePayload.meta_title = meta_title === undefined ? undefined : (meta_title || null)
+  basePayload.meta_description = meta_description === undefined ? undefined : (meta_description || null)
+  basePayload.inventory_count = inventory_count === undefined ? undefined : (inventory_count ?? null)
 
   const richPayload = {
     ...basePayload,
