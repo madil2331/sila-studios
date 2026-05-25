@@ -1,18 +1,24 @@
 import './globals.css'
 import PublicLayout from '@/components/PublicLayout'
 import Script from 'next/script'
+import { OrganizationJsonLd } from '@/components/json-ld'
 
 const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID
 const TIKTOK_PIXEL_ID = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID
 
 export const metadata = {
   metadataBase: new URL('https://silastudios.store'),
-  title: 'Sila Studios — Where Elegance Fits',
-  description:
-    'Premium ladies fashion crafted in Karachi. Refined silhouettes, elegant fabrics, curated for the modern Pakistani woman. Order via WhatsApp.',
+  title: {
+    template: '%s | Sila Studios',
+    default: 'Sila Studios – Handcrafted Designs & Goods',
+  },
+  description: 'Sila Studios offers unique, artisan-crafted products for the modern home. Discover our latest collection.',
   keywords: 'ladies fashion karachi, women clothing pakistan, sila studios, elegant fashion karachi, stitched suits',
   openGraph: {
-    title: 'Sila Studios — Where Elegance Fits',
+    title: {
+    template: '%s | Sila Studios',
+    default: 'Sila Studios – Handcrafted Designs & Goods',
+  },
     description: 'Premium ladies fashion crafted in Karachi.',
     url: 'https://silastudios.store',
     siteName: 'Sila Studios',
@@ -22,7 +28,10 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Sila Studios — Where Elegance Fits',
+    title: {
+    template: '%s | Sila Studios',
+    default: 'Sila Studios – Handcrafted Designs & Goods',
+  },
     images: ['/sila_banner.png'],
   },
   icons: {
@@ -93,6 +102,7 @@ export default function RootLayout({ children }) {
             `}
           </Script>
         ) : null}
+        <OrganizationJsonLd />
         <PublicLayout>{children}</PublicLayout>
       </body>
     </html>
