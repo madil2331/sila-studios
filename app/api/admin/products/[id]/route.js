@@ -26,28 +26,10 @@ export async function PUT(request, { params }) {
 
   const body = await request.json()
   const {
-    name,
-    handle,
-    price,
-    category,
-    description,
-    badge,
-    in_stock,
-    image_url,
-    media_urls,
-    available_sizes,
-    available_colors,
-    compare_at_price,
-    discount_price,
-    product_note,
-    short_description,
-    long_description,
-    sku,
-    status,
-    tags,
-    meta_title,
-    meta_description,
-    inventory_count,
+    name, handle, price, category, description, badge, in_stock, image_url,
+    media_urls, available_sizes, available_colors, compare_at_price, discount_price,
+    product_note, short_description, long_description, sku, status, tags,
+    meta_title, meta_description, inventory_count,
   } = body
 
   const parsedPrice = parsePrice(price)
@@ -55,50 +37,55 @@ export async function PUT(request, { params }) {
     return NextResponse.json({ error: 'Invalid price' }, { status: 400 })
   }
 
-  const basePayload = {
+  const packedDescription = packDescriptionAndNote(description || short_description || long_description, product_note)
+
+  const legacyBase = {
     name,
     handle: handle === undefined ? undefined : (handle || null),
     price: parsedPrice,
     category,
-    description,
+    description: packedDescription,
     badge,
     in_stock,
   }
-  if (image_url !== undefined) basePayload.image_url = image_url || null
-  basePayload.short_description = short_description === undefined ? undefined : (short_description || null)
-  basePayload.long_description = long_description === undefined ? undefined : (long_description || null)
-  basePayload.sku = sku === undefined ? undefined : (sku || null)
-  basePayload.status = status === undefined ? undefined : (status || 'published')
-  basePayload.tags = tags === undefined ? undefined : (Array.isArray(tags) ? tags : (tags ? [tags] : null))
-  basePayload.meta_title = meta_title === undefined ? undefined : (meta_title || null)
-  basePayload.meta_description = meta_description === undefined ? undefined : (meta_description || null)
-  basePayload.inventory_count = inventory_count === undefined ? undefined : (inventory_count ?? null)
+  if (image_url !== undefined) legacyBase.image_url = image_url || null
 
-  const richPayload = {
-    ...basePayload,
+  const legacyRich = {
+    ...legacyBase,
     media_urls: Array.isArray(media_urls) ? media_urls : media_urls === null ? null : undefined,
     available_sizes: available_sizes === undefined ? undefined : (available_sizes || null),
     available_colors: available_colors === undefined ? undefined : (available_colors || null),
     compare_at_price: compare_at_price === undefined ? undefined : (compare_at_price ?? null),
     discount_price: discount_price === undefined ? undefined : (discount_price ?? null),
-    product_note: product_note === undefined ? undefined : (product_note || null),
   }
 
+  const richPayload = {
+    ...legacyRich,
+    product_note: product_note === undefined ? undefined : (product_note || null),
+    short_description: short_description === undefined ? undefined : (short_description || null),
+    long_description: long_description === undefined ? undefined : (long_description || null),
+    sku: sku === undefined ? undefined : (sku || null),
+    status: status === undefined ? undefined : (status || 'published'),
+    tags: tags === undefined ? undefined : (Array.isArray(tags) ? tags : (tags ? [tags] : null)),
+    meta_title: meta_title === undefined ? undefined : (meta_title || null),
+    meta_description: meta_description === undefined ? undefined : (meta_description || null),
+    inventory_count: inventory_count === undefined ? undefined : (inventory_count ?? null),
+  }
+
+  const withoutNote = { ...richPayload }
+  delete withoutNote.product_note
+
+  const payloads = [richPayload, withoutNote, legacyRich, legacyBase]
+
   const db = getSupabaseAdmin()
-  const packedDescription = packDescriptionAndNote(description, product_note)
-  const fallbackPayload = { ...basePayload, description: packedDescription }
-  const fallbackWithoutNoteColumn = { ...richPayload, description: packedDescription }
-  delete fallbackWithoutNoteColumn.product_note
-
-  const payloads = [richPayload, fallbackWithoutNoteColumn, fallbackPayload]
   let update = null
-
   for (const payload of payloads) {
+    // eslint-disable-next-line no-await-in-loop
     update = await db.from('products').update(payload).eq('id', id).select().single()
     if (!update.error) break
   }
 
-  if (update.error) return NextResponse.json({ error: update.error.message }, { status: 500 })
+  if (update?.error) return NextResponse.json({ error: update.error.message }, { status: 500 })
   return NextResponse.json(update.data, { headers: NO_STORE })
 }
 
