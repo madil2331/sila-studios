@@ -24,7 +24,7 @@ export function ProductJsonLd({ name, description, image, sku, brand, offers }) 
     offers: {
       '@type': 'Offer',
       price: offers?.price,
-      priceCurrency: offers?.priceCurrency || 'USD',
+      priceCurrency: offers?.priceCurrency || 'PKR',
       availability: offers?.availability,
       url: offers?.url,
     },

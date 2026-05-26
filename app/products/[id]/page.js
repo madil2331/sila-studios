@@ -77,7 +77,7 @@ export default async function ProductDetailPage({ params }) {
         brand={{ '@type': 'Brand', name: 'Sila Studios' }}
         offers={{
           price: String(showPrice || 0),
-          priceCurrency: 'USD',
+          priceCurrency: 'PKR',
           availability: product.in_stock === false ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
           url: absoluteUrl,
         }}
