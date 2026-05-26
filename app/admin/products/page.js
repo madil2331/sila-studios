@@ -2,16 +2,16 @@
 
 import { useEffect, useState, useRef } from 'react'
 import AdminSidebar from '@/components/AdminSidebar'
-import { PRODUCT_CATEGORIES } from '@/lib/product-categories'
 import { adminFetch } from '@/lib/admin-fetch'
 
-const CATEGORIES = PRODUCT_CATEGORIES
 const BADGES = ['', 'New', 'Bestseller', 'Premium', 'Sale']
 const EMPTY_FORM = {
   name: '',
   handle: '',
   price: '',
   category: '',
+  short_description: '',
+  long_description: '',
   description: '',
   badge: '',
   in_stock: true,
@@ -21,6 +21,13 @@ const EMPTY_FORM = {
   available_colors: '',
   compare_at_price: '',
   discount_price: '',
+  product_note: '',
+  sku: '',
+  status: 'published',
+  tags: '',
+  meta_title: '',
+  meta_description: '',
+  inventory_count: '',
 }
 
 function slugify(input) {
@@ -157,6 +164,72 @@ function ImageUploader({ value, onChange }) {
   )
 }
 
+function MultiImageUploader({ onUploaded }) {
+  const inputRef = useRef()
+  const [uploading, setUploading] = useState(false)
+
+  async function handleFiles(fileList) {
+    const files = Array.from(fileList || [])
+    if (!files.length) return
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    for (const file of files) {
+      if (!validTypes.includes(file.type)) {
+        alert(`"${file.name}" is not supported. Only JPG, PNG or WebP allowed.`)
+        return
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`"${file.name}" exceeds 5MB. Please compress and try again.`)
+        return
+      }
+    }
+
+    setUploading(true)
+    const uploadedUrls = []
+
+    try {
+      for (const file of files) {
+        const fd = new FormData()
+        fd.append('file', file)
+        const res = await adminFetch('/api/admin/upload', { method: 'POST', body: fd })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || `Upload failed for ${file.name}`)
+        if (data.url) uploadedUrls.push(data.url)
+      }
+      if (uploadedUrls.length) onUploaded(uploadedUrls)
+    } catch (err) {
+      alert(err.message || 'Upload failed — check your connection')
+    }
+
+    setUploading(false)
+  }
+
+  return (
+    <div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        multiple
+        style={{ display: 'none' }}
+        onChange={e => handleFiles(e.target.files)}
+      />
+      <button
+        type="button"
+        className="admin-btn admin-btn-outline"
+        disabled={uploading}
+        onClick={() => inputRef.current?.click()}
+        style={{ width: '100%', justifyContent: 'center' }}
+      >
+        {uploading ? 'Uploading gallery...' : 'Upload Multiple Gallery Images'}
+      </button>
+      <p style={{ margin: '10px 0 0', color: '#3A3830', fontSize: 12, lineHeight: 1.6 }}>
+        Select multiple JPG/PNG/WebP files (max 5MB each). Uploaded URLs will be appended automatically.
+      </p>
+    </div>
+  )
+}
+
 export default function ProductsPage() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -166,6 +239,7 @@ export default function ProductsPage() {
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [collections, setCollections] = useState([])
 
   async function load() {
     setLoading(true)
@@ -177,6 +251,11 @@ export default function ProductsPage() {
 
   useEffect(() => { load() }, [])
 
+  useEffect(() => {
+    const productCollections = Array.from(new Set((products || []).map(p => (p.category || '').trim()).filter(Boolean)))
+    setCollections(productCollections)
+  }, [products])
+
   function openAdd() { setForm(EMPTY_FORM); setEditId(null); setModal('add') }
   function openEdit(p) {
     const priceStr = p.price != null && p.price !== '' ? String(p.price) : ''
@@ -185,6 +264,8 @@ export default function ProductsPage() {
       handle: p.handle || '',
       price: priceStr,
       category: p.category || '',
+      short_description: p.short_description || '',
+      long_description: p.long_description || '',
       description: p.description || '',
       badge: p.badge || '',
       in_stock: p.in_stock ?? true,
@@ -194,6 +275,13 @@ export default function ProductsPage() {
       available_colors: p.available_colors || '',
       compare_at_price: p.compare_at_price != null ? String(p.compare_at_price) : '',
       discount_price: p.discount_price != null ? String(p.discount_price) : '',
+      product_note: p.product_note || '',
+      sku: p.sku || '',
+      status: p.status || 'published',
+      tags: Array.isArray(p.tags) ? p.tags.join(', ') : (p.tags || ''),
+      meta_title: p.meta_title || '',
+      meta_description: p.meta_description || '',
+      inventory_count: p.inventory_count != null ? String(p.inventory_count) : '',
     })
     setEditId(p.id)
     setModal('edit')
@@ -213,6 +301,8 @@ export default function ProductsPage() {
           // Normalize numeric fields
           compare_at_price: form.compare_at_price === '' ? null : Number(form.compare_at_price),
           discount_price: form.discount_price === '' ? null : Number(form.discount_price),
+          tags: form.tags ? form.tags.split(',').map(s => s.trim()).filter(Boolean) : [],
+          inventory_count: form.inventory_count === '' ? null : Number(form.inventory_count),
         }),
       })
       if (res.ok) {
@@ -240,16 +330,27 @@ export default function ProductsPage() {
     load()
   }
 
+  function addCollection() {
+    const value = window.prompt('Enter new collection name (e.g. 2-Piece)')
+    const name = String(value || '').trim()
+    if (!name) return
+    setCollections(prev => (prev.includes(name) ? prev : [...prev, name]))
+    setForm(prev => ({ ...prev, category: name }))
+  }
+
   return (
     <div className="admin-shell">
       <AdminSidebar />
       <div className="admin-main">
         <div className="admin-topbar">
           <span className="admin-page-title">Products</span>
-          <button className="admin-btn admin-btn-gold" onClick={openAdd}>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button className="admin-btn admin-btn-outline" onClick={addCollection}>Add Collection</button>
+            <button className="admin-btn admin-btn-gold" onClick={openAdd}>
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Add Product
-          </button>
+            </button>
+          </div>
         </div>
 
         <div className="admin-content">
@@ -367,17 +468,40 @@ export default function ProductsPage() {
                     This controls the product URL (e.g. <span style={{ color: '#C4A462' }}>/products/your-handle</span>). Keep it short and consistent.
                   </p>
                 </div>
+
+                <div className="admin-form-row">
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">SKU</label>
+                    <input className="admin-form-input" value={form.sku} onChange={e => setForm({ ...form, sku: e.target.value })} placeholder="e.g. SILA-001" />
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Status</label>
+                    <select className="admin-form-select" value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+                      <option value="published">Published</option>
+                      <option value="draft">Draft</option>
+                    </select>
+                  </div>
+                </div>
                 <div className="admin-form-row">
                   <div className="admin-form-group">
                     <label className="admin-form-label">Price (Rs.) *</label>
                     <input className="admin-form-input" type="number" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} placeholder="3500" />
                   </div>
                   <div className="admin-form-group">
-                    <label className="admin-form-label">Category</label>
-                    <select className="admin-form-select" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
-                      <option value="">Select category</option>
-                      {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
+                    <label className="admin-form-label">Collection</label>
+                    <input
+                      className="admin-form-input"
+                      list="product-collections"
+                      value={form.category}
+                      onChange={e => setForm({ ...form, category: e.target.value })}
+                      placeholder="e.g. 2-Piece, Formal Shirt, Trouser"
+                    />
+                    <datalist id="product-collections">
+                      {collections.map(c => <option key={c} value={c} />)}
+                    </datalist>
+                    <p style={{ margin: '8px 0 0', color: '#3A3830', fontSize: 12, lineHeight: 1.6 }}>
+                      You can type any custom collection name you want.
+                    </p>
                   </div>
                 </div>
                 <div className="admin-form-row">
@@ -419,23 +543,75 @@ export default function ProductsPage() {
             </div>
 
             <div className="admin-form-group" style={{ marginTop: 16 }}>
-              <label className="admin-form-label">Description</label>
+              <label className="admin-form-label">Short Description</label>
+              <textarea className="admin-form-textarea" value={form.short_description} onChange={e => setForm({ ...form, short_description: e.target.value })} placeholder="Short summary shown near title/price..." />
+            </div>
+
+            <div className="admin-form-group" style={{ marginTop: 16 }}>
+              <label className="admin-form-label">Long Description</label>
+              <textarea className="admin-form-textarea" value={form.long_description} onChange={e => setForm({ ...form, long_description: e.target.value })} placeholder="Detailed product description..." />
+            </div>
+
+            <div className="admin-form-group" style={{ marginTop: 16 }}>
+              <label className="admin-form-label">Legacy Description (optional)</label>
               <textarea className="admin-form-textarea" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Brief description of the piece..." />
+              <p style={{ margin: '8px 0 0', color: '#3A3830', fontSize: 12, lineHeight: 1.6 }}>
+                Formatting supported: <strong>**bold**</strong>, <em>*italic*</em>, bullets with <code>- item</code>.
+              </p>
+            </div>
+
+            <div className="admin-form-group" style={{ marginTop: 16 }}>
+              <label className="admin-form-label">Disclaimer / Important Notice / Instruction</label>
+              <textarea
+                className="admin-form-textarea"
+                value={form.product_note}
+                onChange={e => setForm({ ...form, product_note: e.target.value })}
+                placeholder="e.g. Color may vary slightly due to studio lighting. Dry clean only."
+              />
+              <p style={{ margin: '8px 0 0', color: '#3A3830', fontSize: 12, lineHeight: 1.6 }}>
+                You can format notices with <strong>**bold**</strong>, <em>*italic*</em>, and bullet points using <code>-</code>.
+              </p>
             </div>
 
             <div className="admin-form-group" style={{ marginTop: 16 }}>
               <label className="admin-form-label">Gallery media URLs (one per line)</label>
+              <MultiImageUploader
+                onUploaded={(urls) => setForm(prev => ({
+                  ...prev,
+                  media_urls: [...(prev.media_urls || []), ...urls],
+                }))}
+              />
               <textarea
                 className="admin-form-textarea"
+                style={{ marginTop: 12 }}
                 value={(form.media_urls || []).join('\n')}
                 onChange={e => setForm({ ...form, media_urls: e.target.value.split('\n').map(s => s.trim()).filter(Boolean) })}
                 placeholder="Paste additional image/video URLs (Supabase Storage public URLs)."
               />
               <p style={{ margin: '10px 0 0', color: '#3A3830', fontSize: 12, lineHeight: 1.6 }}>
-                Upload UI for multiple files requires extra Supabase columns + an upload endpoint; for now you can paste URLs.
+                You can still paste external URLs here (one per line) if you host gallery images outside Supabase.
               </p>
             </div>
 
+
+            <div className="admin-form-row" style={{ marginTop: 16 }}>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Tags (comma-separated)</label>
+                <input className="admin-form-input" value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} placeholder="summer, lawn, formal" />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Inventory Count</label>
+                <input className="admin-form-input" type="number" value={form.inventory_count} onChange={e => setForm({ ...form, inventory_count: e.target.value })} placeholder="0" />
+              </div>
+            </div>
+            <div className="admin-form-group" style={{ marginTop: 16 }}>
+              <label className="admin-form-label">Meta Title</label>
+              <input className="admin-form-input" value={form.meta_title} onChange={e => setForm({ ...form, meta_title: e.target.value })} placeholder="SEO title for search results" />
+            </div>
+            <div className="admin-form-group" style={{ marginTop: 16 }}>
+              <label className="admin-form-label">Meta Description</label>
+              <textarea className="admin-form-textarea" value={form.meta_description} onChange={e => setForm({ ...form, meta_description: e.target.value })} placeholder="SEO meta description" />
+            </div>
             <div className="admin-modal-actions">
               <button className="admin-btn admin-btn-outline" onClick={closeModal}>Cancel</button>
               <button className="admin-btn admin-btn-gold" onClick={handleSave} disabled={saving || !form.name || !form.price}>

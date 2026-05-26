@@ -146,4 +146,87 @@ add column if not exists shipment_status text;
 
 ---
 
+## Codex Continuity Log (Backend Security Work)
+
+This section is a running memory of what was last completed in Codex so work can resume safely after context resets.
+
+### Last completed backend hardening (already merged in this branch)
+- Admin login API hardened:
+  - Better client IP detection (`x-forwarded-for`, `x-real-ip`, `cf-connecting-ip`)
+  - Input validation + password length sanitization
+  - Explicit “admin not configured” failure when hash is missing
+  - Stronger cookie settings for admin session
+- Admin auth/rate limiting hardened:
+  - JWT session signing/verification through `JWT_SECRET`
+  - DB-backed rate limiting in `admin_login_rate_limits`
+  - Safe fallback to in-memory lockout if DB check fails
+- Middleware gate simplified:
+  - `/admin/*` checks for session cookie presence
+  - Signature/role verification remains enforced in server APIs
+
+### Resume checklist (do these next)
+1. Verify required environment variables on Vercel:
+   - `JWT_SECRET`
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - Optional: `ENABLE_DB_RATE_LIMIT` (`false` disables DB limiter fallback behavior)
+2. Ensure rate-limit table exists in Supabase (SQL below).
+3. Run admin login E2E checks:
+   - wrong password lockout behavior
+   - successful login clears lockout
+   - unauthenticated `/admin/*` redirects to `/admin`
+4. After verification, add a short dated note under **Progress updates**.
+
+### Verification runbook (copy/paste)
+Use these steps after deploy to verify the hardening end-to-end.
+
+1. Open `https://<your-domain>/admin` and confirm login page loads.
+2. Try wrong password 5 times from same IP, then confirm 6th is rate-limited (HTTP 429).
+3. Login with correct password and confirm:
+   - `sila_admin_session` cookie is set
+   - cookie is `HttpOnly`, `SameSite=Strict`, `Path=/`
+   - in production, cookie is `Secure`
+4. Logout and confirm cookie is removed.
+5. Attempt direct access to an admin API without cookie:
+   - `GET /api/admin/orders` should return `401`.
+6. With valid cookie, repeat `GET /api/admin/orders` and confirm non-401 response.
+
+Example quick checks with curl:
+```bash
+# 1) Unauthenticated should fail
+curl -i https://<your-domain>/api/admin/orders
+
+# 2) Wrong password attempt
+curl -i -X POST https://<your-domain>/api/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"password":"wrong-password"}'
+
+# 3) Successful login (save cookies)
+curl -i -c cookies.txt -X POST https://<your-domain>/api/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"password":"<correct-password>"}'
+
+# 4) Authenticated admin call using cookie jar
+curl -i -b cookies.txt https://<your-domain>/api/admin/orders
+```
+
+### Supabase SQL for admin login rate limiting
+```sql
+create table if not exists public.admin_login_rate_limits (
+  ip text primary key,
+  count integer not null default 0,
+  first_attempt_at timestamptz not null default now(),
+  locked_until timestamptz
+);
+
+create index if not exists idx_admin_login_rate_limits_locked_until
+  on public.admin_login_rate_limits (locked_until);
+```
+
+### Progress updates
+- **2026-05-16**: Reconstructed prior Codex session focus. Current focus is backend security hardening for admin login/session/rate limiting. Next step is production env + Supabase table verification, then E2E auth checks.
+- **2026-05-16 (later)**: Added a production verification runbook with concrete E2E steps and curl commands so validation can be executed repeatably and logged after each deploy.
+
+---
+
 *Built with Next.js 14 · Deployed on Vercel · Domain via Hostinger*

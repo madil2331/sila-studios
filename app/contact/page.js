@@ -126,7 +126,6 @@ export default function ContactPage() {
               <select>
                 <option value="">Select one</option>
                 <option value="order">Place an Order</option>
-                <option value="custom">Custom Stitching</option>
                 <option value="sizing">Sizing Help</option>
                 <option value="other">Other</option>
               </select>

@@ -63,6 +63,9 @@ export default function Footer() {
           <ul>
             <li><Link href="/about">Our Story</Link></li>
             <li><Link href="/contact">Contact Us</Link></li>
+            <li><Link href="/shipping">Shipping Policy</Link></li>
+            <li><Link href="/return-policy">Return Policy</Link></li>
+            <li><Link href="/privacy-policy">Privacy Policy</Link></li>
             <li><a href={waLink} target="_blank" rel="noopener noreferrer">Order via WhatsApp</a></li>
           </ul>
         </div>

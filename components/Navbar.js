@@ -33,6 +33,7 @@ export default function Navbar() {
         <div className="nav-links">
           <Link href="/collections">Collections</Link>
           <Link href="/about">Our Story</Link>
+          <Link href="/shipping">Shipping</Link>
         </div>
 
         {/* Center logo */}
@@ -79,6 +80,9 @@ export default function Navbar() {
         <Link href="/collections" onClick={() => setMenuOpen(false)}>Collections</Link>
         <Link href="/about" onClick={() => setMenuOpen(false)}>Our Story</Link>
         <Link href="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
+        <Link href="/shipping" onClick={() => setMenuOpen(false)}>Shipping</Link>
+        <Link href="/return-policy" onClick={() => setMenuOpen(false)}>Returns</Link>
+        <Link href="/privacy-policy" onClick={() => setMenuOpen(false)}>Privacy</Link>
         <a
           href={waLink}
           target="_blank"
