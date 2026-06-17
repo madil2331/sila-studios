@@ -4,6 +4,7 @@ import Footer from '@/components/Footer'
 import WhatsAppButton from '@/components/WhatsAppButton'
 import AnnouncementBar from '@/components/AnnouncementBar'
 import PublicLayout from '@/components/PublicLayout'
+import { Analytics } from '@vercel/analytics/next'
 
 export const metadata = {
   metadataBase: new URL('https://silastudios.store'),
@@ -45,6 +46,7 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <PublicLayout>{children}</PublicLayout>
+        <Analytics />
       </body>
     </html>
   )
