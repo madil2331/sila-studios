@@ -2,13 +2,23 @@ import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { checkRateLimit, clearRateLimit, createSession, SESSION_COOKIE } from '@/lib/auth'
 
+
+function getClientIp(request) {
+  const candidates = [
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim(),
+    request.headers.get('x-real-ip')?.trim(),
+    request.headers.get('cf-connecting-ip')?.trim(),
+  ]
+  return candidates.find(Boolean) || 'unknown'
+}
+
 export async function POST(request) {
   try {
     // Get real IP (Vercel sets x-forwarded-for)
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+    const ip = getClientIp(request)
 
     // Check rate limit
-    const rateCheck = checkRateLimit(ip)
+    const rateCheck = await checkRateLimit(ip)
     if (!rateCheck.allowed) {
       return NextResponse.json({ error: rateCheck.message }, { status: 429 })
     }
@@ -37,13 +47,13 @@ export async function POST(request) {
     }
 
     // Success — clear rate limit, issue JWT session cookie
-    clearRateLimit(ip)
+    await clearRateLimit(ip)
     const token = await createSession()
 
     const response = NextResponse.json({ success: true })
     response.cookies.set(SESSION_COOKIE, token, {
       httpOnly: true,       // JS can't read it — kills XSS cookie theft
-      secure: true,         // HTTPS only
+      secure: process.env.NODE_ENV === 'production',         // HTTPS only
       sameSite: 'strict',   // No CSRF
       maxAge: 60 * 60 * 12, // 12 hours
       path: '/',
